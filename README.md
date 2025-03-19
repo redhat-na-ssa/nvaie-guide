@@ -22,6 +22,7 @@
 - Software
   1. TensorRT
   1. Triton Inference Server
+  1. AI-Dynamo
   1. PyTorch and TensorFlow 2
   1. NeMo Framework (Neural Modules)
   1. NIM
