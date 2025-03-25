@@ -1,6 +1,6 @@
 # GPU Operator
 
-> TODO: Add preamble
+> TODO: Add preamble\
 > TODO: Add note about [support](https://access.redhat.com/solutions/5174941)
 
 ## Create GPU Nodes
@@ -160,7 +160,7 @@ Below are some of the [PCI vendor ID assignments](https://pcisig.com/membership/
 > `Roles:              worker`\
 > `                    feature.node.kubernetes.io/pci-1d0f.present=true`
 
-## 2.3 Install the NVIDIA GPU Operator
+## Install the NVIDIA GPU Operator
 
 > TODO: Add preamble
 
@@ -202,7 +202,7 @@ Below are some of the [PCI vendor ID assignments](https://pcisig.com/membership/
 
 - [ ] Wait for Operator to finish installing
 
-   oc rollout status deploy/gpu-operator -n nvidia-gpu-operator --timeout=300s
+      oc rollout status deploy/gpu-operator -n nvidia-gpu-operator --timeout=300s
 
 - [ ] Verify the Operator version
 
@@ -231,17 +231,33 @@ Below are some of the [PCI vendor ID assignments](https://pcisig.com/membership/
 
 - [ ] Wait for the GPU Operator components to finish installing
 
-  oc wait clusterpolicy/gpu-cluster-policy --for=condition=Ready --timeout=300s -n nvidia-gpu-operator
+      oc wait clusterpolicy/gpu-cluster-policy --for=condition=Ready --timeout=600s -n nvidia-gpu-operator
 
 > [!IMPORTANT]
 > This step can take up to 20 minutes to complete!
 
-- [ ] Verify the successful installation of the NVIDIA drivers
+- [ ] Verify the successful installation of the NVIDIA driver
 
       oc get pod -l openshift.driver-toolkit -n nvidia-gpu-operator
 
 > Expected output
 >
 > `NAME                                                  READY   STATUS    RESTARTS   AGE`\
-> `nvidia-driver-daemonset-416.94.202409191851-0-8mzb2   2/2     Running   0             `
+> `nvidia-driver-daemonset-417.94.202503060903-0-xxxxx   2/2     Running   0             ` 
 
+## Smoke Test
+
+- [ ] Test GPU Access
+
+      oc exec -n nvidia-gpu-operator $(oc get pod -n nvidia-gpu-operator -l openshift.driver-toolkit -ojsonpath='{.items[0].metadata.name}') -- nvidia-smi
+
+> [!NOTE]
+> Nvidia System Management Interface `nvidia-smi` shows memory usage, GPU utilization, and the temperature of the GPU.
+
+- [ ] Run CUDA VectorAdd
+
+      oc create -f infra/gpu/nvidia-gpu-sample-app.yaml -n sandbox
+
+- [ ] Check logs
+
+      oc logs cuda-vectoradd
