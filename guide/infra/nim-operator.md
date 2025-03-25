@@ -41,4 +41,14 @@
 > [!NOTE]
 > The CSV version should match the latest supported [version](https://docs.nvidia.com/ai-enterprise/release-6/latest/support/support-matrix.html#supported-nvidia-infrastructure-software) of the NIM Operator.
 
+## Caching Models
 
+> TODO
+
+## NIM Services
+
+> TODO
+
+## NIM Pipelines
+
+> TODO
