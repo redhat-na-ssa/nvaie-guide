@@ -5,6 +5,9 @@
 
 ## Create GPU Nodes
 
+> [!NOTE]
+> To demonstrate NIM, a [g6e.xlarge](https://aws.amazon.com/ec2/instance-types/g6e/) will be provisioned.
+
 > [!IMPORTANT]
 > To demonstrate MIG, a [p4d.24xlarge](https://aws.amazon.com/ec2/instance-types/p4/) will be provisioned.
 > This VM has 8 x A100 GPUs and AWS does not offer a smaller VM size with these GPUs.
