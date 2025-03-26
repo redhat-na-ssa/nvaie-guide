@@ -1,6 +1,7 @@
-# NIM Operator
+# NIM (Nvidia Inference Microservices) Operator
 
-> TODO: Add preamble
+> TODO: Add preamble\
+> TODO: Add [supported models](https://docs.nvidia.com/nim/large-language-models/latest/supported-models.html)
 
 ## Create NIM Operator
 
@@ -19,7 +20,7 @@
 
 - [ ] Create the NIM Operator Subscription
 
-      oc create -f infra/nim/nim-operator-sub.yaml
+      oc create -f configs/infra/nim/nim-operator-sub.yaml
 
 > Expected output
 >
@@ -28,6 +29,10 @@
 - [ ] Wait for Operator to finish installing
 
       oc rollout status deploy/k8s-nim-operator -n openshift-operators --timeout=300s
+
+> Expected output
+> 
+> `deployment "k8s-nim-operator" successfully rolled out`
 
 - [ ] Verify the Operator version
 
@@ -39,16 +44,5 @@
 > `install-xxxxx   nim-operator-certified.v1.0.1    Automatic   true`
 
 > [!NOTE]
-> The CSV version should match the latest supported [version](https://docs.nvidia.com/ai-enterprise/release-6/latest/support/support-matrix.html#supported-nvidia-infrastructure-software) of the NIM Operator.
+> The CSV version should match the latest supported [version](https://docs.nvidia.com/ai-enterprise/release-6/latest/support/support-matrix.html#supported-nvidia-configs/infrastructure-software) of the NIM Operator.
 
-## Caching Models
-
-> TODO
-
-## NIM Services
-
-> TODO
-
-## NIM Pipelines
-
-> TODO
