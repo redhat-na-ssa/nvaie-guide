@@ -84,7 +84,7 @@
 
 - [ ] Apply the Namespace object
 
-      oc apply -f infra/gpu/nfd-operator-ns.yaml
+      oc apply -f configs/infra/gpu/nfd-operator-ns.yaml
 
 > Expected output
 >
@@ -92,7 +92,7 @@
 
 - [ ] Apply the OperatorGroup object
 
-      oc apply -f infra/gpu/nfd-operator-group.yaml
+      oc apply -f configs/infra/gpu/nfd-operator-group.yaml
 
 > Expected output
 >
@@ -100,7 +100,7 @@
 
 - [ ] Apply the Subscription object
 
-      oc apply -f infra/gpu/nfd-operator-sub.yaml
+      oc apply -f configs/infra/gpu/nfd-operator-sub.yaml
 
 > Expected output
 >
@@ -119,7 +119,7 @@
 
 - [ ] Create the nfd instance object
 
-      oc apply -f infra/gpu/nfd-instance.yaml
+      oc apply -f configs/infra/gpu/nfd-instance.yaml
 
 > Expected output
 >
@@ -181,7 +181,7 @@ Below are some of the [PCI vendor ID assignments](https://pcisig.com/membership/
 
 - [ ] Apply the Namespace object YAML file
 
-      oc apply -f infra/gpu/nvidia-gpu-operator-ns.yaml
+      oc apply -f configs/infra/gpu/nvidia-gpu-operator-ns.yaml
 
 > Expected output
 >
@@ -189,7 +189,7 @@ Below are some of the [PCI vendor ID assignments](https://pcisig.com/membership/
 
 - [ ] Apply the OperatorGroup YAML file
 
-      oc apply -f infra/gpu/nvidia-gpu-operator-group.yaml
+      oc apply -f configs/infra/gpu/nvidia-gpu-operator-group.yaml
 
 > Expected output
 >
@@ -197,7 +197,7 @@ Below are some of the [PCI vendor ID assignments](https://pcisig.com/membership/
 
 - [ ] Apply the Subscription CR
 
-      oc apply -f infra/gpu/nvidia-gpu-operator-subscription.yaml
+      oc apply -f configs/infra/gpu/nvidia-gpu-operator-sub.yaml
 
 > Expected output
 >
@@ -206,6 +206,10 @@ Below are some of the [PCI vendor ID assignments](https://pcisig.com/membership/
 - [ ] Wait for Operator to finish installing
 
       oc rollout status deploy/gpu-operator -n nvidia-gpu-operator --timeout=300s
+
+> Expected output
+> 
+> `deployment "gpu-operator" successfully rolled out`
 
 - [ ] Verify the Operator version
 
@@ -217,7 +221,7 @@ Below are some of the [PCI vendor ID assignments](https://pcisig.com/membership/
 > `install-xxxxx   gpu-operator-certified.v24.9.2   Automatic   true`
 
 > [!NOTE]
-> The CSV version should match the latest supported [version](https://docs.nvidia.com/ai-enterprise/release-6/latest/support/support-matrix.html#supported-nvidia-infrastructure-software) of the GPU Operator.
+> The CSV version should match the latest supported [version](https://docs.nvidia.com/ai-enterprise/release-6/latest/support/support-matrix.html#supported-nvidia-configs/infrastructure-software) of the GPU Operator.
  
 - [ ] Create the cluster policy
 
@@ -259,7 +263,7 @@ Below are some of the [PCI vendor ID assignments](https://pcisig.com/membership/
 
 - [ ] Run CUDA VectorAdd
 
-      oc create -f infra/gpu/nvidia-gpu-sample-app.yaml -n sandbox
+      oc create -f configs/infra/gpu/nvidia-gpu-sample-app.yaml -n sandbox
 
 - [ ] Check logs
 
