@@ -15,56 +15,47 @@
 
 ## Steps
 
-- [ ] View the MachineSet in the `openshift-machine-api` namespace
+View the MachineSet in the `openshift-machine-api` namespace
 
-      oc get machinesets -n openshift-machine-api
+```sh
+oc get machinesets -n openshift-machine-api
+```
 
-> Expected output
->
-> `NAME                                    DESIRED   CURRENT   READY   AVAILABLE   AGE`\
-> `cluster-xxxxx-xxxxx-worker-us-xxxx-xx   0         0                                `
+Make a copy of the MachineSet
 
-- [ ] Make two copies of the MachineSet and output the results to YAML files
- 
-      MACHINESET=$(oc get machineset -n openshift-machine-api -o jsonpath='{.items[0].metadata.name}')
-      
-      oc get machineset $MACHINESET -n openshift-machine-api -o yaml > scratch/timeslice-machineset.yaml
+```sh 
+MACHINESET=$(oc get machineset -n openshift-machine-api -o jsonpath='{.items[0].metadata.name}')
+oc get machineset $MACHINESET -n openshift-machine-api -o yaml > scratch/gpu-machineset.yaml
+```
 
-      oc get machineset $MACHINESET -n openshift-machine-api -o yaml > scratch/mig-machineset.yaml
-
-- [ ] Edit `scratch/timeslice-machineset.yaml`
+Edit `scratch/gpu-machineset.yaml`
 
   - [ ] Delete `creationTimestamp`, `generation`, `resourceVersion`, `uid`
   - [ ] Set `.metadata.name` to `ts-machineset`
   - [ ] Set `.spec.selector.matchLabels["machine.openshift.io/cluster-api-machineset"]` to `ts-machineset`
   - [ ] Set `.spec.template.metadata.labels["machine.openshift.io/cluster-api-machineset"]` to `ts-machineset`
   - [ ] Set `.spec.replicas` to `1`
-  - [ ] Set `.spec.template.spec.providerSpec.value.instanceType` to `g6.xlarge`
+  - [ ] Set `.spec.template.spec.providerSpec.value.instanceType` to `g6e.xlarge`
 
-- [ ] Edit `scratch/mig-machineset.yaml`
-  - [ ] Delete `creationTimestamp`, `generation`, `resourceVersion`, `uid`
-  - [ ] Set `.metadata.name` to `mig-machineset`
-  - [ ] Set `.spec.selector.matchLabels["machine.openshift.io/cluster-api-machineset"]` to `mig-machineset`
-  - [ ] Set `.spec.template.metadata.labels["machine.openshift.io/cluster-api-machineset"]` to `mig-machineset`
-  - [ ] Set `.spec.replicas` to `1`
-  - [ ] Set `.spec.template.spec.providerSpec.value.instanceType` to `p4d.24xlarge`  
+Create MachineSet
 
-- [ ] Create MachineSets
+```sh
+oc create -f scratch/gpu-machineset.yaml
+```      
 
-      oc create -f scratch/timeslice-machineset.yaml
-      
-      oc create -f scratch/mig-machineset.yaml
+Verify the new MachineSet
 
-- [ ] Verify the new MachineSets in the `openshift-machine-api` namespace
+```sh
+oc get machinesets -n openshift-machine-api
+```
 
-      oc get machinesets -n openshift-machine-api
+Expected output
 
-> Expected output
->
-> `NAME                                    DESIRED   CURRENT   READY   AVAILABLE   AGE`\
-> `cluster-xxxxx-xxxxx-worker-us-xxxx-xx   0         0                                `\
-> `ts-machineset                           1         1                                `\
-> `mig-machineset                          1         1                                `
+```
+NAME                                    DESIRED   CURRENT   READY   AVAILABLE   AGE\
+cluster-xxxxx-xxxxx-worker-us-xxxx-xx   0         0                                \
+gpu-machineset                          1         1                                
+```
 
 ## Install Node Feature Discovery Operator
 
@@ -73,57 +64,32 @@
 
 ## Steps
 
-- [ ] List the available operators for installation searching for Node Feature Discovery (NFD)
+List the available operators for installation searching for Node Feature Discovery (NFD)
 
-      oc get packagemanifests -n openshift-marketplace | grep nfd
+```sh
+oc get packagemanifests -n openshift-marketplace | grep nfd
+```
 
-> Expected output
->
-> `openshift-nfd-operator                             Community Operators   8h`\
-> `nfd                                                Red Hat Operators     8h`
+Create Operator
 
-- [ ] Apply the Namespace object
+```sh
+oc create -f configs/infra/gpu/nfd-operator.yaml
+```
 
-      oc apply -f configs/infra/gpu/nfd-operator-ns.yaml
+Verify Operator is installed and running
 
-> Expected output
->
-> `namespace/openshift-nfd created`
-
-- [ ] Apply the OperatorGroup object
-
-      oc apply -f configs/infra/gpu/nfd-operator-group.yaml
-
-> Expected output
->
-> `operatorgroup.operators.coreos.com/nfd created`
-
-- [ ] Apply the Subscription object
-
-      oc apply -f configs/infra/gpu/nfd-operator-sub.yaml
-
-> Expected output
->
-> `subscription.operators.coreos.com/nfd created`
-
-- [ ] Verify the operator is installed and running
-
-      oc rollout status deploy/nfd-controller-manager -n openshift-nfd --timeout=300s      
-
-> Expected output
->
-> deployment "nfd-controller-manager" successfully rolled out
+```sh
+oc rollout status deploy/nfd-controller-manager -n openshift-nfd --timeout=300s      
+```
 
 > [!NOTE]
 > After installing the NFD Operator, you create instance that installs the `nfd-master` and one `nfd-worker` pod for each compute node. [More Info](https://docs.openshift.com/container-platform/4.15/hardware_enablement/psap-node-feature-discovery-operator.html#Configure-node-feature-discovery-operator-sources_psap-node-feature-discovery-operator)
 
-- [ ] Create the nfd instance object
+Create the nfd instance object
 
-      oc apply -f configs/infra/gpu/nfd-instance.yaml
-
-> Expected output
->
-> `nodefeaturediscovery.nfd.openshift.io/nfd-instance created`
+```
+oc create -f configs/infra/gpu/nfd-instance.yaml
+```
 
 > [!IMPORTANT]
 > The NFD Operator uses vendor PCI IDs to identify hardware in a node.
@@ -137,31 +103,39 @@ Below are some of the [PCI vendor ID assignments](https://pcisig.com/membership/
 | `1002` | AMD    |
 | `8086` | Intel  |
 
-- [ ] Verify the NFD pods are `Running` on the cluster nodes polling for devices
+Verify the NFD pods are `Running` on the cluster nodes polling for devices
 
-      oc get pods -n openshift-nfd
+```sh
+oc get pods -n openshift-nfd
+```
 
-> Expected output
->
-> `NAME                                      READY   STATUS    RESTARTS   AGE`\
-> `nfd-controller-manager-xxxxxxxxxx-xxxxx   2/2     Running   0             `\
-> `nfd-master-xxxxxxxxxx-xxxxx               1/1     Running   0             `\
-> `nfd-worker-xxxxx                          1/1     Running   0             `\
-> `nfd-worker-xxxxx                          1/1     Running   0             `\
-> `nfd-worker-xxxxx                          1/1     Running   0             `
+Expected output
 
-- [ ] Verify the GPU device (NVIDIA uses the PCI ID `10de`) is discovered on the GPU node. This means the NFD Operator correctly identified the node from the GPU-enabled MachineSet.
+```
+NAME                                      READY   STATUS    RESTARTS   AGE\
+nfd-controller-manager-xxxxxxxxxx-xxxxx   2/2     Running   0             \
+nfd-master-xxxxxxxxxx-xxxxx               1/1     Running   0             \
+nfd-worker-xxxxx                          1/1     Running   0             \
+nfd-worker-xxxxx                          1/1     Running   0             \
+nfd-worker-xxxxx                          1/1     Running   0             
+```
 
-      oc describe node | egrep 'Roles|pci' | grep -v master
+Verify the GPU device (NVIDIA uses the PCI ID `10de`) is discovered on the GPU node. This means the NFD Operator correctly identified the node from the GPU-enabled MachineSet.
 
-> Expected output
->
-> `Roles:              worker`\
-> `                    feature.node.kubernetes.io/pci-10de.present=true`\
-> `                    feature.node.kubernetes.io/pci-1d0f.present=true`\
-> `                    feature.node.kubernetes.io/pci-1d0f.present=true`\
-> `Roles:              worker`\
-> `                    feature.node.kubernetes.io/pci-1d0f.present=true`
+```sh
+oc describe node | egrep 'Roles|pci' | grep -v master
+```
+
+Expected output
+
+```
+Roles:              worker\
+                    feature.node.kubernetes.io/pci-10de.present=true\
+                    feature.node.kubernetes.io/pci-1d0f.present=true\
+                    feature.node.kubernetes.io/pci-1d0f.present=true\
+Roles:              worker\
+                    feature.node.kubernetes.io/pci-1d0f.present=true
+```
 
 ## Install the NVIDIA GPU Operator
 
@@ -169,102 +143,109 @@ Below are some of the [PCI vendor ID assignments](https://pcisig.com/membership/
 
 ## Steps
 
-- [ ] List the available operators for installation searching for GPU
+List the available operators for installation searching for GPU
 
-      oc get packagemanifests -n openshift-marketplace | grep gpu
+```sh
+oc get packagemanifests -n openshift-marketplace | grep gpu
+```
 
-> Expected output
->
-> `amd-gpu-operator                                   Community Operators   8h`\
-> `amd-gpu-operator                                   Certified Operators   8h`\
-> `gpu-operator-certified                             Certified Operators   8h`
+Expected output
 
-- [ ] Apply the Namespace object YAML file
+```
+amd-gpu-operator                                   Community Operators   8h\
+amd-gpu-operator                                   Certified Operators   8h\
+gpu-operator-certified                             Certified Operators   8h
+```
 
-      oc apply -f configs/infra/gpu/nvidia-gpu-operator-ns.yaml
+Create Operator
 
-> Expected output
->
-> `namespace/nvidia-gpu-operator created`
+```sh
+oc create -f configs/infra/gpu/nvidia-gpu-operator.yaml
+```
 
-- [ ] Apply the OperatorGroup YAML file
+Wait for Operator to finish installing
 
-      oc apply -f configs/infra/gpu/nvidia-gpu-operator-group.yaml
+```sh
+oc rollout status deploy/gpu-operator -n nvidia-gpu-operator --timeout=300s
+```
 
-> Expected output
->
-> `operatorgroup.operators.coreos.com/nvidia-gpu-operator-group created`
+Expected output
 
-- [ ] Apply the Subscription CR
+```
+deployment "gpu-operator" successfully rolled out`
+```
 
-      oc apply -f configs/infra/gpu/nvidia-gpu-operator-sub.yaml
+Verify the Operator version
 
-> Expected output
->
-> `subscription.operators.coreos.com/gpu-operator-certified created`
+```sh
+oc get ip -n nvidia-gpu-operator
+```
 
-- [ ] Wait for Operator to finish installing
+Expected output
 
-      oc rollout status deploy/gpu-operator -n nvidia-gpu-operator --timeout=300s
-
-> Expected output
-> 
-> `deployment "gpu-operator" successfully rolled out`
-
-- [ ] Verify the Operator version
-
-      oc get ip -n nvidia-gpu-operator
-
-> Expected output
->
-> `NAME            CSV                              APPROVAL    APPROVED`\
-> `install-xxxxx   gpu-operator-certified.v24.9.2   Automatic   true`
+```
+NAME            CSV                              APPROVAL    APPROVED\
+install-xxxxx   gpu-operator-certified.v24.9.2   Automatic   true
+```
 
 > [!NOTE]
 > The CSV version should match the latest supported [version](https://docs.nvidia.com/ai-enterprise/release-6/latest/support/support-matrix.html#supported-nvidia-configs/infrastructure-software) of the GPU Operator.
  
-- [ ] Create the cluster policy
+Create the cluster policy
 
-      oc get csv -n nvidia-gpu-operator -l operators.coreos.com/gpu-operator-certified.nvidia-gpu-operator \
-        -ojsonpath='{.items[0].metadata.annotations.alm-examples}' | jq '.[0]' > scratch/nvidia-gpu-clusterpolicy.json
+```sh
+oc get csv -n nvidia-gpu-operator -l operators.coreos.com/gpu-operator-certified.nvidia-gpu-operator \
+  -ojsonpath='{.items[0].metadata.annotations.alm-examples}' | jq '.[0]' > scratch/nvidia-gpu-clusterpolicy.json
+```
 
-- [ ] Apply the clusterpolicy
 
-      oc apply -f scratch/nvidia-gpu-clusterpolicy.json
+Apply the clusterpolicy
 
-> Expected output
->
-> `clusterpolicy.nvidia.com/gpu-cluster-policy created`
+```sh
+oc apply -n nvidia-gpu-operator -f scratch/nvidia-gpu-clusterpolicy.json
+```
 
-- [ ] Wait for the GPU Operator components to finish installing
+Wait for the GPU Operator components to finish installing
 
-      oc wait clusterpolicy/gpu-cluster-policy --for=condition=Ready --timeout=600s -n nvidia-gpu-operator
+```sh
+oc wait clusterpolicy/gpu-cluster-policy --for=condition=Ready --timeout=600s -n nvidia-gpu-operator
+```
 
 > [!IMPORTANT]
 > This step can take up to 20 minutes to complete!
 
-- [ ] Verify the successful installation of the NVIDIA driver
+Verify the successful installation of the NVIDIA driver
 
-      oc get pod -l openshift.driver-toolkit -n nvidia-gpu-operator
+```sh
+oc get pod -l openshift.driver-toolkit -n nvidia-gpu-operator
+```
 
-> Expected output
->
-> `NAME                                                  READY   STATUS    RESTARTS   AGE`\
-> `nvidia-driver-daemonset-417.94.202503060903-0-xxxxx   2/2     Running   0             ` 
+Expected output
+
+```
+NAME                                                  READY   STATUS    RESTARTS   AGE\
+nvidia-driver-daemonset-417.94.202503060903-0-xxxxx   2/2     Running   0             
+```
 
 ## Smoke Test
 
-- [ ] Test GPU Access
+Test GPU Access
 
-      oc exec -n nvidia-gpu-operator $(oc get pod -n nvidia-gpu-operator -l openshift.driver-toolkit -ojsonpath='{.items[0].metadata.name}') -- nvidia-smi
+```sh
+oc exec -n nvidia-gpu-operator $(oc get pod -n nvidia-gpu-operator -l openshift.driver-toolkit -ojsonpath='{.items[0].metadata.name}') -- nvidia-smi
+```
 
 > [!NOTE]
 > Nvidia System Management Interface `nvidia-smi` shows memory usage, GPU utilization, and the temperature of the GPU.
 
-- [ ] Run CUDA VectorAdd
+Run CUDA VectorAdd
 
-      oc create -f configs/infra/gpu/nvidia-gpu-sample-app.yaml -n sandbox
+```sh
+oc create -f configs/infra/gpu/nvidia-gpu-sample-app.yaml -n sandbox
+```
 
-- [ ] Check logs
+Check logs
 
-      oc logs cuda-vectoradd
+```sh
+oc logs cuda-vectoradd
+```
