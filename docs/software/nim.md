@@ -2,7 +2,7 @@
 
 > TODO: Preamble
 
-> Note the supported GPUs (anything older will not be recognized)
+> Note L4 is not technically supported, see [supported GPUs](https://docs.nvidia.com/nim/large-language-models/latest/supported-models.html#gpus)
 
 > Note: Make sure you have exported your `NGC_API_KEY`, see Prerequisites.
 
@@ -95,6 +95,8 @@ curl -X "POST" \
       }'
 ```
 
+> TODO: Link to time slice GPU to create two replicas
+
 Update the NIM service with autoscaling
 
 ```sh
@@ -130,9 +132,11 @@ Check that NIM service autoscaled
 oc -n nim nimservice meta-llama3-8b-instruct
 ```
 
-Deploy ReRank service and autoscaling
+Delete NIM service
 
-> TODO
+```sh
+oc -n nim delete nimservice meta-llama3-8b-instruct
+```
 
 ## NIM Pipelines
 
