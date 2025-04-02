@@ -4,15 +4,9 @@
 
 > TODO: Add note about [support](https://access.redhat.com/solutions/5174941)
 
-## Create GPU Nodes
+## Create GPU Machines
 
-> [!NOTE]
-> To demonstrate NIM, a [g6e.xlarge](https://aws.amazon.com/ec2/instance-types/g6e/) will be provisioned.
-
-> [!IMPORTANT]
-> To demonstrate MIG, a [p4d.24xlarge](https://aws.amazon.com/ec2/instance-types/p4/) will be provisioned.
-> This VM has 8 x A100 GPUs and AWS does not offer a smaller VM size with these GPUs.
-> Please be sure to delete the MIG machines once you have completed the instructions to save on cost! 
+Let's add machines with GPUs to your cluster. You will create a [g6 instance](https://aws.amazon.com/ec2/instance-types/g6/) which feature Nvidia L4 GPUs.
 
 View the MachineSets in your cluster:
 
@@ -25,7 +19,7 @@ NAME                                    DESIRED   CURRENT   READY   AVAILABLE   
 cluster-xxxxx-xxxxx-worker-us-xxxx-xx   0         0                                
 ```
 
-Make a copy of the existing MachineSet:
+Make a copy of the existing MachineSet configuration:
 
 ```sh 
 MACHINESET=$(oc get machineset -n openshift-machine-api -o jsonpath='{.items[0].metadata.name}')
@@ -36,18 +30,40 @@ Edit `scratch/gpu-machineset.yaml`
 
   - [ ] Delete `creationTimestamp`, `generation`, `resourceVersion`, `uid`
   - [ ] Set `.metadata.name` to `gpu-machineset`
+  - [ ] Set `.spec.replicas` to `1`
   - [ ] Set `.spec.selector.matchLabels["machine.openshift.io/cluster-api-machineset"]` to `gpu-machineset`
   - [ ] Set `.spec.template.metadata.labels["machine.openshift.io/cluster-api-machineset"]` to `gpu-machineset`
-  - [ ] Set `.spec.replicas` to `1`
-  - [ ] Set `.spec.template.spec.providerSpec.value.instanceType` to `g6e.xlarge`
+  - [ ] Set `.spec.template.spec.providerSpec.value.instanceType` to `g6.4xlarge`
+  
+Finally, further edit `scratch/gpu-machineset.yaml` to add a taint, so that non-GPU specific workloads do not run on those machines. 
 
-Create your new MachineSet:
+The Nvidia GPU Operator by default adds a toleration for the key `nvidia.com/gpu`, so let's use this taint key.
+
+The taint should look like:
+
+```text
+apiVersion: machine.openshift.io/v1beta1
+kind: MachineSet
+metadata:
+spec:
+  [...]
+  template:
+    [...]
+    spec:
+      [...]
+      taints:
+      - effect: NoSchedule         
+        key: nvidia.com/gpu
+        value: ''
+```
+
+Create your GPU MachineSet:
 
 ```sh
 oc create -f scratch/gpu-machineset.yaml
 ```      
 
-Verify the new MachineSet:
+Verify the GPU MachineSet:
 
 ```sh
 oc get machinesets -n openshift-machine-api
@@ -55,7 +71,7 @@ oc get machinesets -n openshift-machine-api
 
 ```text
 NAME                                    DESIRED   CURRENT   READY   AVAILABLE   AGE
-cluster-xxxxx-xxxxx-worker-us-xxxx-xx   0         0                                
+cluster-xxxxx-xxxxx-worker-us-xxxx-xx   1         1         1       1                
 gpu-machineset                          1         1                                
 ```
 
@@ -122,8 +138,6 @@ Verify the NFD pods are `Running` on the cluster nodes polling for devices
 ```sh
 oc get pods -n openshift-nfd
 ```
-
-Expected output
 
 ```
 NAME                                      READY   STATUS    RESTARTS   AGE
@@ -201,6 +215,9 @@ Create the cluster policy:
 oc get csv -n nvidia-gpu-operator -l operators.coreos.com/gpu-operator-certified.nvidia-gpu-operator \
   -ojsonpath='{.items[0].metadata.annotations.alm-examples}' | jq '.[0]' > scratch/nvidia-gpu-clusterpolicy.json
 ```
+
+> [!IMPORTANT]
+> If you decided to use a custom taint key instead of `nvidia.com/gpu`, then you will need to modify the cluster policy file and add a toleration for your custom key.
 
 Apply the clusterpolicy:
 
