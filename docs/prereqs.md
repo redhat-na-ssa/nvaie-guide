@@ -40,9 +40,15 @@ export NGC_API_KEY=
 Clone this repository:
 
 ```bash
-git clone https://github.com/redhat-na-ssa/nvaie-guide.git
-cd nvaie-guide
+git clone --depth 1 \
+  https://github.com/redhat-na-ssa/nvaie-guide.git
 ``` 
+
+Change into the `nvaie-guide` directory:
+
+```bash
+cd nvaie-guide
+```
 
 Create a scratch directory:
 
