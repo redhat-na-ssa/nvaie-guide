@@ -42,7 +42,7 @@ Wait for job to complete:
 
 ```bash
 oc wait -n nim --for=condition=complete job nim-profile-job --timeout=100s
-``
+```
 
 ```text
 job.batch/nim-profile-job condition met
@@ -65,7 +65,7 @@ cat configs/software/nim/meta-cache.yaml
 Notice the following:
 
 - [ ] `volumeAccessMode` is set to `ReadWriteOnce`
-- [ ] `model.profiles` includes the profiles `193...` and `7cc...`
+- [ ] `model.profiles` includes the profiles `7cc...`
 
 While Nvidia recommends RWX volume access mode, we will use RWO for demonstration purposes. Change this to `ReadWriteMany` if you have an appropriate storage class that supports RWX.
 
@@ -121,19 +121,9 @@ curl -X "POST" \
   -H 'Accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
-        "model": "meta/llama3-8b-instruct",
-        "messages": [
-        {
-          "content":"What should I do for a 4 day vacation at Cape Hatteras National Seashore?",
-          "role": "user"
-        }],
-        "top_p": 1,
-        "n": 1,
-        "max_tokens": 1024,
-        "stream": false,
-        "frequency_penalty": 0.0,
-        "stop": ["STOP"]
-      }'
+    "model": "meta/llama-3.1-8b-instruct",
+    "messages": [{"role": "user", "content": "Hello!"}]
+  }'
 ```
 
 > TODO: Link to time slice GPU to create two replicas
@@ -152,19 +142,9 @@ while true; do sleep 1; curl -X "POST" \
   -H 'Accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
-        "model": "meta/llama3-8b-instruct",
-        "messages": [
-        {
-          "content":"What should I do for a 4 day vacation at Cape Hatteras National Seashore?",
-          "role": "user"
-        }],
-        "top_p": 1,
-        "n": 1,
-        "max_tokens": 1024,
-        "stream": false,
-        "frequency_penalty": 0.0, 
-        "stop": ["STOP"]
-      }'; echo "";done
+    "model": "meta/llama-3.1-8b-instruct",
+    "messages": [{"role": "user", "content": "Hello!"}]
+  }' 
 ```
 
 Check that NIM service autoscaled:

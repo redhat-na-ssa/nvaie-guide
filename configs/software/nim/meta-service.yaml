@@ -17,7 +17,7 @@ spec:
   storage:
     nimCache:
       name: meta-llama3-8b-instruct
-      profile: ''
+      profile: '7cc8597690a35aba19a3636f35e7f1c7e7dbc005fe88ce9394cad4a4adeed414'
   replicas: 1
   resources:
     limits:
