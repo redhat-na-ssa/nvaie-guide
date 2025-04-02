@@ -1,5 +1,7 @@
 # (Optional) Multi-Instance GPU
 
+> https://docs.nvidia.com/datacenter/cloud-native/openshift/latest/mig-ocp.html
+
 This section is optional if you want to explore how MIG works. The MIG machines you create in this section **will not** be used anywhere else in this guide.
 
 > [!IMPORTANT]
