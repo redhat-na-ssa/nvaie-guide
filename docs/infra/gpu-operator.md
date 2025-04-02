@@ -88,6 +88,7 @@ oc get packagemanifests -n openshift-marketplace | grep nfd
 ```
 
 ```text
+
 openshift-nfd-operator                           Community Operators   6h43m
 nfd                                              Red Hat Operators     6h43m
 ```
@@ -98,17 +99,15 @@ Create the NFD Operator:
 oc create -f configs/infra/gpu/nfd-operator.yaml
 ```
 
-Verify Operator is installed and running:
+Use the `rollout` command to verify the deployment. You might get an error if the deployment does not exist yet. In that case, wait a few seconds and try again.
 
-> [!TIP]
-> You might get an error if the deployment does not exist yet. Wait a few seconds and try again.
+Wait for the operator deployment:
 
 ```sh
 oc rollout status deploy/nfd-controller-manager -n openshift-nfd --timeout=300s      
 ```
 
 ```text
-Waiting for deployment "nfd-controller-manager" rollout to finish: 0 of 1 updated replicas are available...
 deployment "nfd-controller-manager" successfully rolled out
 ```
 
@@ -185,13 +184,15 @@ Create the Nvidia GPU Operator:
 oc create -f configs/infra/gpu/nvidia-gpu-operator.yaml
 ```
 
-Wait for Operator to finish installing:
+Use the `rollout` command to verify the deployment. You might get an error if the deployment does not exist yet. In that case, wait a few seconds and try again.
+
+Wait for the operator deployment:
 
 ```sh
 oc rollout status deploy/gpu-operator -n nvidia-gpu-operator --timeout=300s
 ```
 
-```
+```text
 deployment "gpu-operator" successfully rolled out`
 ```
 
@@ -208,8 +209,10 @@ install-xxxxx   gpu-operator-certified.v24.9.2   Automatic   true
 
 > [!IMPORTANT]
 > The CSV version should match the latest supported [version](https://docs.nvidia.com/ai-enterprise/release-6/latest/support/support-matrix.html#supported-nvidia-configs/infrastructure-software) of the GPU Operator.
+
+> TODO: Explain Cluster Policy
  
-Create the cluster policy:
+Create a Cluster Policy configuration:
 
 ```sh
 oc get csv -n nvidia-gpu-operator -l operators.coreos.com/gpu-operator-certified.nvidia-gpu-operator \
@@ -218,8 +221,9 @@ oc get csv -n nvidia-gpu-operator -l operators.coreos.com/gpu-operator-certified
 
 > [!IMPORTANT]
 > If you decided to use a custom taint key instead of `nvidia.com/gpu`, then you will need to modify the cluster policy file and add a toleration for your custom key.
+> See this [example](https://github.com/NVIDIA/gpu-operator/blob/main/deployments/gpu-operator/values.yaml#L39) for where to set this in the Cluster Policy.
 
-Apply the clusterpolicy:
+Apply the configuration:
 
 ```sh
 oc apply -n nvidia-gpu-operator -f scratch/nvidia-gpu-clusterpolicy.json
@@ -232,6 +236,10 @@ Wait for the GPU Operator components to finish installing:
 
 ```sh
 oc wait clusterpolicy/gpu-cluster-policy --for=condition=Ready --timeout=600s -n nvidia-gpu-operator
+```
+
+```text
+clusterpolicy.nvidia.com/gpu-cluster-policy condition met
 ```
 
 Verify the successful installation of the NVIDIA driver:
@@ -247,16 +255,15 @@ nvidia-driver-daemonset-417.94.202503060903-0-xxxxx   2/2     Running   0
 
 ## Smoke Test
 
-Test GPU Access
-
-> [!NOTE]
-> Nvidia System Management Interface `nvidia-smi` shows memory usage, GPU utilization, and the temperature of the GPU.
+Use the [nvidia-smi](https://docs.nvidia.com/deploy/nvidia-smi/) program to test GPU access.
 
 ```sh
 oc exec -n nvidia-gpu-operator $(oc get pod -n nvidia-gpu-operator -l openshift.driver-toolkit -ojsonpath='{.items[0].metadata.name}') -- nvidia-smi
 ```
 
-Run CUDA VectorAdd
+You should see the `NVIDIA L4` GPU you provisioned.
+
+Run CUDA VectorAdd:
 
 ```sh
 oc create -f configs/infra/gpu/nvidia-gpu-sample-app.yaml -n sandbox
