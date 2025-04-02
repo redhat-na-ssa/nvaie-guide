@@ -68,11 +68,21 @@ oc patch machineset gpu-machineset \
 Verify that time slicing was configured:
 
 ```bash
-oc get node --selector=nvidia.com/gpu.product=NVIDIA-L4-SHARED -o jsonpath='{.items[0].status.capacity}'
+oc get node --selector=nvidia.com/gpu.product=NVIDIA-L4-SHARED -o jsonpath-as-json='{.items[0].status.capacity}'
 ```
 
 ```text
-{"cpu":"16","ephemeral-storage":"104266732Ki","hugepages-1Gi":"0","hugepages-2Mi":"0","memory":"63402072Ki","nvidia.com/gpu":"4","pods":"250"}
+[
+    {
+        "cpu": "16",
+        "ephemeral-storage": "104266732Ki",
+        "hugepages-1Gi": "0",
+        "hugepages-2Mi": "0",
+        "memory": "63402072Ki",
+        "nvidia.com/gpu": "4",
+        "pods": "250"
+    }
+]
 ```
 
 Next: [MIG](gpu-mig.md)
