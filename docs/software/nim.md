@@ -2,14 +2,22 @@
 
 > TODO: Preamble
 
-> Note L4 is not technically supported, see [supported GPUs](https://docs.nvidia.com/nim/large-language-models/latest/supported-models.html#gpus)
+> TODO: Note L4 is not technically supported, see [supported GPUs](https://docs.nvidia.com/nim/large-language-models/latest/supported-models.html#gpus)
 
-> Note: Make sure you have exported your `NGC_API_KEY`, see Prerequisites.
+> [!IMPORTANT]
+> Make sure you have your Nvidia API key, see the [Prerequisites](docs/prerequisites.md).
 
-> TODO: Link instrutions to set NGC credentials
+Let's create a namespace `nim` to work in.
 
-```sh
-export NGC_API_KEY=
+Create a new namespace:
+
+```bash
+oc create -f configs/software/nim/nim-ns.yaml
+```
+
+Create secrets associated with your API Key:
+
+```bash
 oc -n nim create secret docker-registry ngc-secret --docker-server=nvcr.io --docker-username='$oauthtoken' --docker-password=$NGC_API_KEY
 oc -n nim create secret generic ngc-api-secret --from-literal=NGC_API_KEY=$NGC_API_KEY
 ```
@@ -18,65 +26,98 @@ oc -n nim create secret generic ngc-api-secret --from-literal=NGC_API_KEY=$NGC_A
 
 The first step in NIM is to cache (i.e. download) the model.
 
-Create a new namespace
+Before we can create our model cache, we have to specify which model profile we want to cache.
 
-```sh
-oc create -n -f configs/software/nim/nim-ns.yaml
+> TODO: Add description of model profiles
+
+We will use the [list-model-profiles](https://docs.nvidia.com/nim/large-language-models/latest/utilities.html#list-available-model-profiles) utility to determine which model profiles exist.
+
+Run a job using the `list-model-profiles` utility:
+
+```bash
+oc create -f configs/software/nim/meta-profiles.yaml 
 ```
 
-Look at the NIM cache file
+Wait for job to complete:
 
-```sh
+```bash
+oc wait -n nim --for=condition=complete job nim-profile-job --timeout=100s
+``
+
+```text
+job.batch/nim-profile-job condition met
+```
+
+View the logs of the job:
+
+```bash
+oc logs -n nim $(oc get pod -n nim -l job-name=nim-profile-job -o jsonpath='{.items[0].metadata.name}')
+```
+
+> TODO: Explain the profiles we selected
+
+Look at the NIM cache file:
+
+```bash
 cat configs/software/nim/meta-cache.yaml
 ```
 
-Notice the `volumeAccessMode` is set to `ReadWriteOnce`. Change this to `ReadWriteMany` if you have an appropriate storage class that supports RWX.
+Notice the following:
 
-While Nvidia recommends RWX volume access mode, we will use RWO for demonstration purposes.
+- [ ] `volumeAccessMode` is set to `ReadWriteOnce`
+- [ ] `model.profiles` includes the profiles `193...` and `7cc...`
 
-> TODO: Is there an easy way to try RWX access?
+While Nvidia recommends RWX volume access mode, we will use RWO for demonstration purposes. Change this to `ReadWriteMany` if you have an appropriate storage class that supports RWX.
 
-Deploy a NIM cache for Meta Llama-3.1-8b-Instruct
+Deploy a NIM cache for Meta Llama-3.1-8b-Instruct:
 
-```sh
+```bash
 oc create -n nim -f configs/software/nim/meta-cache.yaml
 ```
 
-Wait for the NIM cache to be ready
+Wait for the NIM cache to be ready:
 
-```sh
-oc wait -n nim --for=jsonpath='{.spec.status}'='Ready' nimcache meta-llama3-8b-instruct --timeout=300s
+```bash
+oc wait -n nim --for=condition=complete job meta-llama3-8b-instruct-job --timeout=100s
 ```
+
+```text
+job.batch/meta-llama3-8b-instruct-job condition met
+```
+
+You now have a Persistent Volume with meta-llama3-8b-instruct downloaded.
 
 ## NIM Services
 
-Deploy a NIM service for Meta Llama-3.1-8b-Instruct using the cache
+Deploy a NIM service for Meta Llama-3.1-8b-Instruct using the cache:
 
-```sh
+```bash
 oc create -n nim -f configs/software/nim/meta-service.yaml
 ```
 
-Wait for the NIM service to be ready
+Wait for the NIM service to be ready. Note this can take some time:
 
-```sh
-oc wait -n nim --for=jsonpath='{.spec.status}'='Ready' nimservice meta-llama3-8b-instruct --timeout=300s
+```bash
+oc rollout status deploy/meta-llama3-8b-instruct -n nim --timeout=600s
 ```
 
-> TODO: Is there a way to view the containerfile of the NIM service that is deployed? What is under the hood?
+```text
+deployment "meta-llama3-8b-instruct" successfully rolled out
+```
 
-Expose the service
+Expose the service with a route:
 
-```sh
+```bash
 oc expose -n nim svc meta-llama3-8b-instruct
 ```
 
 Smoke test
 
-```sh
-NIM_META_URL=$(oc get route -n nim meta-llama3-8b-instruct --template='http://{{.spec.host}}'))
+```bash
+NIM_META_URL=$(oc get route -n nim meta-llama3-8b-instruct --template='http://{{.spec.host}}')
 
 curl -X "POST" \
- $NIM_META_URL/v1/chat/completions' \
+ $NIM_META_URL/v1/chat/completions \
   -H 'Accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -99,15 +140,15 @@ curl -X "POST" \
 
 Update the NIM service with autoscaling
 
-```sh
+```bash
 oc apply -n nim -f configs/software/nim/meta-service-hpa.yaml
 ```
 
 Smoke test
 
-```sh
+```bash
 while true; do sleep 1; curl -X "POST" \
- $NIM_META_URL/v1/chat/completions' \
+ $NIM_META_URL/v1/chat/completions \
   -H 'Accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -126,16 +167,22 @@ while true; do sleep 1; curl -X "POST" \
       }'; echo "";done
 ```
 
-Check that NIM service autoscaled
+Check that NIM service autoscaled:
 
-```sh
-oc -n nim nimservice meta-llama3-8b-instruct
+```bash
+oc -n nim get nimservice meta-llama3-8b-instruct
 ```
 
-Delete NIM service
+Delete NIM service:
 
-```sh
+```bash
 oc -n nim delete nimservice meta-llama3-8b-instruct
+```
+
+Delete NIM cache:
+
+```bash
+oc -n nim delete nimcache meta-llama-3-8b-instruct
 ```
 
 ## NIM Pipelines

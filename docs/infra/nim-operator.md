@@ -1,47 +1,48 @@
 # NIM (Nvidia Inference Microservices) Operator
 
 > TODO: Add preamble\
-> TODO: Add [supported models](https://docs.nvidia.com/nim/large-language-models/latest/supported-models.html)
+> TODO: Discuss [supported models](https://docs.nvidia.com/nim/large-language-models/latest/supported-models.html)
 
 ## Create NIM Operator
 
-> [!IMPORTANT]
-> TODO
+List the available operators for installation searching for `nim-operator`:
 
-## Steps
+```bash
+oc get packagemanifests -n openshift-marketplace | grep nim-operator
+```
 
-- [ ] List the available operators for installation searching for `nim-operator`
+```text
+nim-operator-certified                           Certified Operators   32h
+```
 
-      oc get packagemanifests -n openshift-marketplace | grep nim-operator
+Create the NIM operator:
 
-> Expected output
->
-> `nim-operator-certified                           Certified Operators   23h`
+```bash
+oc create -f configs/infra/nim/nim-operator.yaml
+```
 
-- [ ] Create the NIM Operator Subscription
+Use the `rollout` command to verify the deployment. You might get an error if the deployment does not exist yet. In that case, wait a few seconds and try again.
 
-      oc create -f configs/infra/nim/nim-operator-sub.yaml
+Wait for the operator deployment:
 
-> Expected output
->
-> `subscription.operators.coreos.com/nim-operator-certified created`
+```bash
+oc rollout status deploy/k8s-nim-operator -n openshift-operators --timeout=300s
+```
 
-- [ ] Wait for Operator to finish installing
+```text
+deployment "k8s-nim-operator" successfully rolled out
+```
 
-      oc rollout status deploy/k8s-nim-operator -n openshift-operators --timeout=300s
+Verify the version of the NIM operator that was installed:
 
-> Expected output
-> 
-> `deployment "k8s-nim-operator" successfully rolled out`
+```bash
+oc get ip -n openshift-operators
+```
 
-- [ ] Verify the Operator version
-
-      oc get ip -n openshift-operators
-
-> Expected output
->
-> `NAME            CSV                              APPROVAL    APPROVED`\
-> `install-xxxxx   nim-operator-certified.v1.0.1    Automatic   true`
+```text
+NAME            CSV                             APPROVAL    APPROVED
+install-xxxxx   nim-operator-certified.v1.0.1   Automatic   true
+```
 
 > [!NOTE]
 > The CSV version should match the latest supported [version](https://docs.nvidia.com/ai-enterprise/release-6/latest/support/support-matrix.html#supported-nvidia-configs/infrastructure-software) of the NIM Operator.
