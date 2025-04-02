@@ -7,3 +7,4 @@ This section is optional if you want to explore how MIG works. The MIG machines 
 > This VM has 8 x A100 GPUs and AWS does not offer a smaller VM size with these GPUs.
 > Please be sure to delete the MIG machines once you are done to save on cost!
 
+Next: [NIM Operator](nim-operator.md)

@@ -14,7 +14,7 @@ Request an environment from the Demo Catalog system.
 
 Login to the cluster with your credentials.
 
-The cluster will have one node. Scale the compute node for a little more room.
+This is a single node OCP cluster. Let's scale the cluster for a little more room.
 
 ```bash
 MACHINESET=$(oc get machineset -n openshift-machine-api -o jsonpath='{.items[0].metadata.name}')
@@ -62,3 +62,4 @@ You are going to use the official Nvidia Helm charts for some components such as
 
 Follow the Helm [docs](https://helm.sh/docs/intro/install/) to install Helm.
 
+Next: [GPU Operator](infra/gpu-operator.md)

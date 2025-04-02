@@ -9,3 +9,5 @@ In later sections of the guide, you will be autoscaling NIM services to deploy o
 To save on cost, let's time slice the single L4 GPU into partitions so you can test autoscaling.
 
 > TODO: Finish this section
+
+Next: [MIG](gpu-mig.md)
