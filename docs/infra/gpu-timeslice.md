@@ -72,7 +72,7 @@ oc get node --selector=nvidia.com/gpu.product=NVIDIA-L4-SHARED -o jsonpath='{.it
 ```
 
 ```text
-{"cpu":"16","ephemeral-storage":"104266732Ki","hugepages-1Gi":"0","hugepages-2Mi":"0","memory":"63402072Ki","nvidia.com/gpu":"4","pods":"250"|
+{"cpu":"16","ephemeral-storage":"104266732Ki","hugepages-1Gi":"0","hugepages-2Mi":"0","memory":"63402072Ki","nvidia.com/gpu":"4","pods":"250"}
 ```
 
 Next: [MIG](gpu-mig.md)
