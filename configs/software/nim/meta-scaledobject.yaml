@@ -1,0 +1,26 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: meta-scaledobject
+  annotations:
+    autoscaling.keda.sh/paused: 'true'
+  labels:
+    scaledobject.keda.sh/name: meta-scaledobject
+spec:
+  minReplicaCount: 1
+  scaleTargetRef:
+    name: meta-llama3-8b-instruct
+  triggers:
+    - authenticationRef:
+        kind: TriggerAuthentication
+        name: keda-trigger-auth-prometheus
+      metadata:
+        authModes: bearer
+        ignoreNullValues: 'false'
+        metricName: gpu_cache_usage_perc
+        namespace: nim
+        query: 'gpu_cache_usage_perc'
+        serverAddress: 'https://thanos-querier.openshift-monitoring.svc.cluster.local:9092'
+        threshold: '0.5'
+        unsafeSsl: 'true'
+      type: prometheus

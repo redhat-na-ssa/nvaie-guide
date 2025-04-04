@@ -3,6 +3,4 @@ kind: Namespace
 metadata:
   annotations:
     openshift.io/display-name: "NIM Services"
-  labels:
-    openshift.io/cluster-monitoring: 'true'
   name: nim

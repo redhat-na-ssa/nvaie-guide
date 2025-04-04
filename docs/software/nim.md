@@ -5,7 +5,8 @@
 > TODO: Note L4 is not technically supported, see [supported GPUs](https://docs.nvidia.com/nim/large-language-models/latest/supported-models.html#gpus)
 
 > [!IMPORTANT]
-> Make sure you have your Nvidia API key, see the [Prerequisites](docs/prerequisites.md).
+> Make sure you have user workload monitoring enabled, see the [Prerequisites](docs/prereqs.md).
+> Make sure you have your Nvidia API key, see the [Prerequisites](docs/prereqs.md).
 
 Let's create a namespace `nim` to work in.
 
@@ -126,13 +127,67 @@ curl -X "POST" \
   }'
 ```
 
-> TODO: Link to time slice GPU to create two replicas
+```text
+{"id":"chat-7badc43d2979411c86b70937861ae104","object":"chat.completion","created":1743615706,"model":"meta/llama-3.1-8b-instruct","choices":[{"index":0,"message":{"role":"assistant","content":"Hello! How can I assist you today?"},"logprobs":null,"finish_reason":"stop","stop_reason":null}],"usage":{"prompt_tokens":12,"total_tokens":21,"completion_tokens":9},"prompt_logprobs":null}
+```
 
-Update the NIM service with autoscaling
+The NIM service exposes a variety of metrics. Take a look:
 
 ```bash
-oc apply -n nim -f configs/software/nim/meta-service-hpa.yaml
+NIM_META_URL=$(oc get route -n nim meta-llama3-8b-instruct --template='http://{{.spec.host}}')
+
+curl $NIM_META_URL/v1/metrics
 ```
+
+One of the metrics is `gpu_cache_usage_perc`. We'll use that in the autoscaling configuration.
+
+> TODO: Add note prometheus adapter deprecated in OpenShift
+
+Install CMA Operator
+
+> TODO: Add steps
+
+Create KedaController
+
+```bash
+oc create -f configs/software/nim/keda-controller.yaml
+```
+
+Configure authentication for KEDA trigger
+
+```bash
+oc create -f configs/software/nim/thanos-sa-secret.yaml
+```
+
+Create trigger
+
+```bash
+oc create -f configs/software/nim/keda-trigger.yaml -n nim
+```
+
+Create role binding
+
+```bash
+oc create -f configs/software/nim/thanos-role-rolebinding.yaml -n nim
+```
+
+Note annotation that pauses the ScaledObject
+
+```bash
+cat configs/software/nim/meta-scaledobject.yaml
+```
+
+Create ScaledObject with scaling set to PAUSE
+
+```bash
+oc create -f configs/software/nim/meta-scaledobject.yaml 
+```
+
+> TODO: Update NIM hpa to monitor external metric
+
+> TODO: Update NIM with autoscaling
+
+Notice we are using a very low value `0.01`. This should be `0.5` (50%) but we're using a really low number to force the autoscale for demo purposes.
 
 Smoke test
 
@@ -144,13 +199,7 @@ while true; do sleep 1; curl -X "POST" \
   -d '{
     "model": "meta/llama-3.1-8b-instruct",
     "messages": [{"role": "user", "content": "Hello!"}]
-  }' 
-```
-
-Check that NIM service autoscaled:
-
-```bash
-oc -n nim get nimservice meta-llama3-8b-instruct
+  }'; done 
 ```
 
 Delete NIM service:
@@ -172,3 +221,4 @@ oc -n nim delete nimcache meta-llama-3-8b-instruct
 ## NeMo
 
 > TODO: Bring a NeMo custom model from the NeMo section and deploy it as a NIM
+

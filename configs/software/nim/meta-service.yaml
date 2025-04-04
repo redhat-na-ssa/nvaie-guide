@@ -3,6 +3,8 @@ kind: NIMService
 metadata:
   name: meta-llama3-8b-instruct
 spec:
+  metrics:
+    enabled: true
   tolerations:
   - key: "nvidia.com/gpu"
     operator: "Exists"
