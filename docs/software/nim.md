@@ -112,11 +112,15 @@ Expose the service with a route:
 oc expose -n nim svc meta-llama3-8b-instruct
 ```
 
-Smoke test
+Grab a reference to the route:
 
 ```bash
 NIM_META_URL=$(oc get route -n nim meta-llama3-8b-instruct --template='http://{{.spec.host}}')
+```
 
+Smoke test
+
+```bash
 curl -X "POST" \
  $NIM_META_URL/v1/chat/completions \
   -H 'Accept: application/json' \
@@ -134,8 +138,6 @@ curl -X "POST" \
 The NIM service exposes a variety of metrics. Take a look:
 
 ```bash
-NIM_META_URL=$(oc get route -n nim meta-llama3-8b-instruct --template='http://{{.spec.host}}')
-
 curl $NIM_META_URL/v1/metrics
 ```
 
