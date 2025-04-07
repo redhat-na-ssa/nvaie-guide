@@ -3,6 +3,7 @@ kind: ScaledObject
 metadata:
   name: meta-scaledobject
   annotations:
+    autoscaling.keda.sh/paused-replicas: '1'
     autoscaling.keda.sh/paused: 'true'
   labels:
     scaledobject.keda.sh/name: meta-scaledobject

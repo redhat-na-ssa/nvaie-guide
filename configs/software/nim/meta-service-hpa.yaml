@@ -34,14 +34,13 @@ spec:
       maxReplicas: 2
       minReplicas: 1
       metrics:
-      - type: Object
-        object:
+      - type: External
+        external:
           metric:
-            name: gpu_cache_usage_perc
-          describedObject:
-            apiVersion: v1
-            kind: Service
-            name: meta-llama3-8b-instruct
+            name: s0-prometheus
+            selector:
+              matchLabels:
+                scaledobject.keda.sh/name: meta-scaledobject
           target:
             type: Value
-            value: "0.01"
+            value: '0.001'

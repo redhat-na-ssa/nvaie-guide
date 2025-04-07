@@ -5,7 +5,7 @@
 > TODO: Note L4 is not technically supported, see [supported GPUs](https://docs.nvidia.com/nim/large-language-models/latest/supported-models.html#gpus)
 
 > [!IMPORTANT]
-> Make sure you have user workload monitoring enabled, see the [Prerequisites](docs/prereqs.md).
+> Make sure you have user workload monitoring enabled, see the [Prerequisites](docs/prereqs.md).\
 > Make sure you have your Nvidia API key, see the [Prerequisites](docs/prereqs.md).
 
 Let's create a namespace `nim` to work in.
@@ -141,55 +141,114 @@ curl $NIM_META_URL/v1/metrics
 
 One of the metrics is `gpu_cache_usage_perc`. We'll use that in the autoscaling configuration.
 
-> TODO: Add note prometheus adapter deprecated in OpenShift
+### Autoscaling
 
-Install CMA Operator
+NIM Services provide a specification to enable horizontal pod autoscaling. The Nvidia [documentation](https://docs.nvidia.com/nim-operator/latest/service.html#prerequistes-hpa) uses a Prometheus Adapter to export custom metrics for NIM horizontal pod autoscaling. 
+
+However, OCP removed the Prometheus Adapter starting in [v4.8](https://docs.openshift.com/container-platform/4.8/release_notes/ocp-4-8-release-notes.html#ocp-4-8-hpa-prometheus).
+
+Instead, we will leverage the [Custom Metrics Autoscaler](https://docs.redhat.com/en/documentation/openshift_container_platform/4.17/html/nodes/automatically-scaling-pods-with-the-custom-metrics-autoscaler-operator#nodes-cma-autoscaling-custom)(CMA) based on KEDA to export external metrics for NIM horizontal pod autoscaling.
+
+
+Start by installing the CMA Operator:
 
 > TODO: Add steps
 
-Create KedaController
+Create KedaController:
 
 ```bash
 oc create -f configs/software/nim/keda-controller.yaml
 ```
 
-Configure authentication for KEDA trigger
+Configure service account authentication for KEDA trigger:
 
 ```bash
 oc create -f configs/software/nim/thanos-sa-secret.yaml
 ```
 
-Create trigger
-
-```bash
-oc create -f configs/software/nim/keda-trigger.yaml -n nim
-```
-
-Create role binding
+Create role binding for KEDA trigger service account:
 
 ```bash
 oc create -f configs/software/nim/thanos-role-rolebinding.yaml -n nim
 ```
 
-Note annotation that pauses the ScaledObject
+Create the KEDA trigger authentication resource:
 
 ```bash
-cat configs/software/nim/meta-scaledobject.yaml
+oc create -f configs/software/nim/keda-trigger.yaml -n nim
 ```
 
-Create ScaledObject with scaling set to PAUSE
+Now it's time to create a `ScaledObject`. This is a custom resource that defines autoscaling parameters and the scaling metric to monitor.
+
+In a typical use case, you would deploy a `ScaledObject` and it would create a HPA for you.
+
+In this use case, we need KEDA to define the scaling metric but **not** create the HPA because NIM will do that instead.
+
+To do this, we have to add two annotations `paused-replicas` and `paused`. Both annotations are required; `paused-replicas` forces the `ScaledObject` to create the scaling metric and `paused` prevents the KEDA HPA from being deployed.
+
+Note the two annotations we added to the `ScaledObject`:
+
+```bash
+cat configs/software/nim/meta-scaledobject.yaml | grep annotation -A 2
+```
+
+```text
+  annotations:
+    autoscaling.keda.sh/paused-replicas: '1'
+    autoscaling.keda.sh/paused: 'true'
+```
+
+Create ScaledObject:
 
 ```bash
 oc create -f configs/software/nim/meta-scaledobject.yaml 
 ```
 
-> TODO: Update NIM hpa to monitor external metric
+Verify the KEDA external metric is created:
 
-> TODO: Update NIM with autoscaling
+```bash
+oc get --raw "/apis/external.metrics.k8s.io/v1beta1/namespaces/nim/s0-prometheus?labelSelector=scaledobject.keda.sh%2Fname%3Dmeta-scaledobject"
+```
 
-Notice we are using a very low value `0.01`. This should be `0.5` (50%) but we're using a really low number to force the autoscale for demo purposes.
+```text
+{"kind":"ExternalMetricValueList","apiVersion":"external.metrics.k8s.io/v1beta1","metadata":{},"items":[{"metricName":"s0-prometheus","metricLabels":null,"timestamp":"2025-04-07T14:31:11Z","value":"1m"}]}
+```
 
-Smoke test
+> TODO: Switch to another metric...or average value
+
+Look at the HPA spec that monitors the KEDA external metric. Notice we are using a very low value `0.001`. This should be `0.5` (50%) but we're using a really low number to force the autoscale for demo purposes.
+
+```bash
+cat configs/software/nim/meta-service-hpa.yaml | grep External -B 1 -A 11
+```
+
+```text
+      metrics:
+      - type: External
+        external:
+          metric:
+            name: s0-prometheus
+            selector:
+              matchLabels:
+                scaledobject.keda.sh/name: meta-scaledobject
+          target:
+            type: Value
+            value: '0.001'
+```
+
+Enable autoscaling in NIM:
+
+```bash
+oc apply -f configs/software/nim/meta-service-hpa.yaml
+```
+
+At this point, you might need to wait as the deployments restart:
+
+```bash
+oc rollout status deploy/meta-llama3-8b-instruct -n nim --timeout=600s
+```
+
+Smoke test:
 
 ```bash
 while true; do sleep 1; curl -X "POST" \
@@ -201,6 +260,8 @@ while true; do sleep 1; curl -X "POST" \
     "messages": [{"role": "user", "content": "Hello!"}]
   }'; done 
 ```
+
+> TODO: Delete autoscaling stuff
 
 Delete NIM service:
 
