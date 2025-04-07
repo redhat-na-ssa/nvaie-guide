@@ -36,7 +36,7 @@ We will use the [list-model-profiles](https://docs.nvidia.com/nim/large-language
 Run a job using the `list-model-profiles` utility:
 
 ```bash
-oc create -f configs/software/nim/meta-profiles.yaml 
+oc create -n nim -f configs/software/nim/meta-profiles.yaml 
 ```
 
 Wait for job to complete:
@@ -166,19 +166,19 @@ oc create -f configs/software/nim/keda-controller.yaml
 Configure service account authentication for KEDA trigger:
 
 ```bash
-oc create -f configs/software/nim/thanos-sa-secret.yaml
+oc create -n nim -f configs/software/nim/thanos-sa-secret.yaml
 ```
 
 Create role binding for KEDA trigger service account:
 
 ```bash
-oc create -f configs/software/nim/thanos-role-rolebinding.yaml -n nim
+oc create -n nim -f configs/software/nim/thanos-role-rolebinding.yaml
 ```
 
 Create the KEDA trigger authentication resource:
 
 ```bash
-oc create -f configs/software/nim/keda-trigger.yaml -n nim
+oc create -n nim -f configs/software/nim/keda-trigger.yaml
 ```
 
 Now it's time to create a `ScaledObject`. This is a custom resource that defines autoscaling parameters and the scaling metric to monitor.
@@ -204,7 +204,7 @@ cat configs/software/nim/keda-meta-scaledobject.yaml | grep annotation -A 2
 Create `ScaledObject`:
 
 ```bash
-oc create -f configs/software/nim/keda-meta-scaledobject.yaml 
+oc create -n nim -f configs/software/nim/keda-meta-scaledobject.yaml 
 ```
 
 Verify the KEDA external metric is created:
@@ -240,7 +240,7 @@ cat configs/software/nim/meta-service-hpa.yaml | grep External -B 1 -A 11
 Enable autoscaling in NIM:
 
 ```bash
-oc apply -f configs/software/nim/meta-service-hpa.yaml
+oc apply -n nim -f configs/software/nim/meta-service-hpa.yaml
 ```
 
 Bump up the KV cache by sending a more complex request:
@@ -260,7 +260,7 @@ curl -X "POST" \
 Verify the HPA scaled the deployment:
 
 ```bash
-oc get hpa meta-llama3-8b-instruct
+oc get -n nim hpa meta-llama3-8b-instruct
 ```
 
 ```text
@@ -271,7 +271,7 @@ meta-llama3-8b-instruct   Deployment/meta-llama3-8b-instruct   18m/10m   1      
 > TODO: Verify if larger VM size can run two copies of the inference service
 
 ```bash
-oc get pods -l app=meta-llama3-8b-instruct
+oc get pods -n nim -l app=meta-llama3-8b-instruct
 ```
 
 ```text
@@ -285,7 +285,7 @@ meta-llama3-8b-instruct-xxxxxxxxxx-xxxxx   0/1
 Delete scaled object:
 
 ```bash
-oc delete scaledobject --all
+oc -n nim delete scaledobject --all
 ```
 
 Delete NIM service:
