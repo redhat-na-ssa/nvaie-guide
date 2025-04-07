@@ -43,4 +43,4 @@ spec:
                 scaledobject.keda.sh/name: meta-scaledobject
           target:
             type: Value
-            value: '0.001'
+            value: '0.01'

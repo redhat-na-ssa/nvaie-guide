@@ -214,9 +214,7 @@ oc get --raw "/apis/external.metrics.k8s.io/v1beta1/namespaces/nim/s0-prometheus
 {"kind":"ExternalMetricValueList","apiVersion":"external.metrics.k8s.io/v1beta1","metadata":{},"items":[{"metricName":"s0-prometheus","metricLabels":null,"timestamp":"2025-04-07T14:31:11Z","value":"1m"}]}
 ```
 
-> TODO: Switch to another metric...or average value
-
-Look at the HPA spec that monitors the KEDA external metric. Notice we are using a very low value `0.001`. This should be `0.5` (50%) but we're using a really low number to force the autoscale for demo purposes.
+Look at the HPA spec that monitors the KEDA external metric. Notice we are using a very low value `0.01`. This should be `0.5` (50%) but we're using a really low number to force the autoscale for demo purposes.
 
 ```bash
 cat configs/software/nim/meta-service-hpa.yaml | grep External -B 1 -A 11
@@ -233,7 +231,7 @@ cat configs/software/nim/meta-service-hpa.yaml | grep External -B 1 -A 11
                 scaledobject.keda.sh/name: meta-scaledobject
           target:
             type: Value
-            value: '0.001'
+            value: '0.01'
 ```
 
 Enable autoscaling in NIM:
@@ -242,26 +240,50 @@ Enable autoscaling in NIM:
 oc apply -f configs/software/nim/meta-service-hpa.yaml
 ```
 
-At this point, you might need to wait as the deployments restart:
+Bump up the KV cache by sending a more complex request:
 
 ```bash
-oc rollout status deploy/meta-llama3-8b-instruct -n nim --timeout=600s
-```
-
-Smoke test:
-
-```bash
-while true; do sleep 1; curl -X "POST" \
+curl -X "POST" \
  $NIM_META_URL/v1/chat/completions \
   -H 'Accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
+    "stream": "True",
     "model": "meta/llama-3.1-8b-instruct",
-    "messages": [{"role": "user", "content": "Hello!"}]
-  }'; done 
+    "messages": [{"role": "user", "content": "Summarize Red Hat OpenShift"}]
+  }'
 ```
 
-> TODO: Delete autoscaling stuff
+Verify the HPA scaled the deployment:
+
+```bash
+oc get hpa meta-llama3-8b-instruct
+```
+
+```text
+NAME                      REFERENCE                            TARGETS   MINPODS   MAXPODS   REPLICAS   AGE
+meta-llama3-8b-instruct   Deployment/meta-llama3-8b-instruct   18m/10m   1         2         2          
+```
+
+> TODO: Verify if larger VM size can run two copies of the inference service
+
+```bash
+oc get pods -l app=meta-llama3-8b-instruct
+```
+
+```text
+NAME                                       READY   STATUS             RESTARTS        AGE
+meta-llama3-8b-instruct-xxxxxxxxxx-xxxxx   1/1
+meta-llama3-8b-instruct-xxxxxxxxxx-xxxxx   0/1     
+```
+
+### Cleanup
+
+Delete scaled object:
+
+```bash
+oc delete scaledobject --all
+```
 
 Delete NIM service:
 

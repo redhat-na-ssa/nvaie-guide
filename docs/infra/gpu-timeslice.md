@@ -6,8 +6,6 @@ For example, you might want to run multiple copies of an inference service on a 
 
 One way to share a GPU is time slicing. While time slicing allows you to multiplex N workloads to a GPU, there is no memory or fault isolation for workloads running on that GPU.
 
-Let's time slice the one L4 GPU in your cluster.
-
 First, we need to define the sharing configuration. Here is the configuration you will use:
 
 ```text
