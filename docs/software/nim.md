@@ -143,16 +143,17 @@ One of the metrics is `gpu_cache_usage_perc`. We'll use that in the autoscaling 
 
 ### Autoscaling
 
-NIM Services provide a specification to enable horizontal pod autoscaling. The Nvidia [documentation](https://docs.nvidia.com/nim-operator/latest/service.html#prerequistes-hpa) uses a Prometheus Adapter to export custom metrics for NIM horizontal pod autoscaling. 
+NIM Services provide a specification to enable horizontal pod autoscaling (HPA). The Nvidia [documentation](https://docs.nvidia.com/nim-operator/latest/service.html#prerequistes-hpa) uses a Prometheus Adapter to export custom metrics for NIM HPA.
 
 However, OCP removed the Prometheus Adapter starting in [v4.8](https://docs.openshift.com/container-platform/4.8/release_notes/ocp-4-8-release-notes.html#ocp-4-8-hpa-prometheus).
 
-Instead, we will leverage the [Custom Metrics Autoscaler](https://docs.redhat.com/en/documentation/openshift_container_platform/4.17/html/nodes/automatically-scaling-pods-with-the-custom-metrics-autoscaler-operator#nodes-cma-autoscaling-custom)(CMA) based on KEDA to export external metrics for NIM horizontal pod autoscaling.
-
+Instead, we will leverage the [Custom Metrics Autoscaler](https://docs.redhat.com/en/documentation/openshift_container_platform/4.17/html/nodes/automatically-scaling-pods-with-the-custom-metrics-autoscaler-operator#nodes-cma-autoscaling-custom)(CMA) based on KEDA to export external metrics for NIM HPA.
 
 Start by installing the CMA Operator:
 
-> TODO: Add steps
+```bash
+oc create -f configs/software/nim/cma-operator.yaml
+```
 
 Create KedaController:
 
@@ -189,7 +190,7 @@ To do this, we have to add two annotations `paused-replicas` and `paused`. Both 
 Note the two annotations we added to the `ScaledObject`:
 
 ```bash
-cat configs/software/nim/meta-scaledobject.yaml | grep annotation -A 2
+cat configs/software/nim/keda-meta-scaledobject.yaml | grep annotation -A 2
 ```
 
 ```text
@@ -201,7 +202,7 @@ cat configs/software/nim/meta-scaledobject.yaml | grep annotation -A 2
 Create ScaledObject:
 
 ```bash
-oc create -f configs/software/nim/meta-scaledobject.yaml 
+oc create -f configs/software/nim/keda-meta-scaledobject.yaml 
 ```
 
 Verify the KEDA external metric is created:
