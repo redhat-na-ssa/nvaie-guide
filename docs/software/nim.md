@@ -294,15 +294,76 @@ Delete NIM service:
 oc -n nim delete nimservice meta-llama3-8b-instruct
 ```
 
-Delete NIM cache:
-
-```bash
-oc -n nim delete nimcache meta-llama-3-8b-instruct
-```
-
 ## NIM Pipelines
 
-> TODO
+If you have multiple NIM services, you can deploy multiple NIM services and manage each individually as a `NIMService`.
+
+Alternatively, you can *group* NIM services together as one resource called a `NIMPipeline`.
+
+Let's demonstrate this with the [llama-3.2-nv-embedqa-1b-v2](https://build.nvidia.com/nvidia/llama-3_2-nv-embedqa-1b-v2) and [llama-3.2-nv-rerankqa-1b-v2](https://build.nvidia.com/nvidia/llama-3_2-nv-rerankqa-1b-v2) models.
+
+Create the caches for both models. We'll skip identifying a profile and simply download `-all` profiles.
+
+```bash
+oc create -n nim -f configs/software/nim/pipeline-cache.yaml
+```
+
+Wait for the NIM caches to be ready:
+
+```bash
+oc wait -n nim --for=condition=complete job nv-embedqa-e5-v5-job --timeout=100s
+oc wait -n nim --for=condition=complete job nv-rerankqa-mistral-4b-v3-job --timeout=100s
+```
+
+View the caches:
+
+```bash
+oc get -n nim nimcache
+```
+
+```text
+NAME                        STATUS   PVC                             AGE
+meta-llama3-8b-instruct     Ready    meta-llama3-8b-instruct-pvc     
+nv-embedqa-e5-v5            Ready    nv-embedqa-e5-v5-pvc            
+nv-rerankqa-mistral-4b-v3   Ready    nv-rerankqa-mistral-4b-v3-pvc 
+```
+
+Deploy the models together as a `NIMPipeline`:
+
+```bash
+oc create -n nim -f configs/software/nim/pipeline.yaml
+```
+
+Check the pipeline status:
+
+```bash
+oc get -n nim nimpipeline
+```
+
+```text
+NAME       STATUS   AGE
+pipeline   Ready    
+```
+
+View the NIM services running:
+
+```bash
+oc get pods -l app.kubernetes.io/part-of=nim-service
+```
+
+```text
+NAME                                      READY   STATUS    RESTARTS   AGE
+nv-embedqa-e5-v5-6f97b4f66b-2qqwg         1/1     Running   0          
+nv-rerank-mistral-4b-v3-7f467794f-z9j6g   1/1     Running   0          
+```
+
+### Cleanup
+
+Delete the NIM pipeline:
+
+```bash
+oc delete -n nim nimpipeline pipeline
+```
 
 ## NeMo
 
