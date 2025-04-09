@@ -1,0 +1,34 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: thanos-metrics-reader
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - get
+- apiGroups:
+  - metrics.k8s.io
+  resources:
+  - pods
+  - nodes
+  verbs:
+  - get
+  - list
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: thanos-metrics-reader
+  namespace: nim
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: thanos-metrics-reader
+subjects:
+- kind: ServiceAccount
+  name: thanos
+  namespace: nim

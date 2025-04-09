@@ -14,11 +14,17 @@ Request an environment from the Demo Catalog system.
 
 Login to the cluster with your credentials.
 
-This is a single node OCP cluster. Let's scale the cluster for a little more room.
+This is a single node OCP cluster. Let's scale the cluster for a little more room:
 
 ```bash
 MACHINESET=$(oc get machineset -n openshift-machine-api -o jsonpath='{.items[0].metadata.name}')
 oc scale machineset $MACHINESET -n openshift-machine-api --replicas=1
+```
+
+Enable user workload monitoring:
+
+```bash
+oc create -f configs/cluster-monitoring-config.yaml
 ```
 
 ## Nvidia
