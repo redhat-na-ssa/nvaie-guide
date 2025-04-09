@@ -1,0 +1,49 @@
+apiVersion: apps.nvidia.com/v1alpha1
+kind: NIMCache
+metadata:
+  name: nv-embedqa-e5-v5
+spec:
+  tolerations:
+  - key: "nvidia.com/gpu"
+    operator: "Exists"
+    effect: "NoSchedule"
+  source:
+    ngc:
+      modelPuller: nvcr.io/nim/nvidia/llama-3.2-nv-embedqa-1b-v2:1.3.1
+      pullSecret: ngc-secret
+      authSecret: ngc-api-secret
+      model:
+        profiles:
+        - all
+  storage:
+    pvc:
+      create: true
+      storageClass: gp3-csi
+      size: "20Gi"
+      volumeAccessMode: ReadWriteOnce
+  resources: {}
+---
+apiVersion: apps.nvidia.com/v1alpha1
+kind: NIMCache
+metadata:
+  name: nv-rerankqa-mistral-4b-v3
+spec:
+  tolerations:
+  - key: "nvidia.com/gpu"
+    operator: "Exists"
+    effect: "NoSchedule"
+  source:
+    ngc:
+      modelPuller: nvcr.io/nim/nvidia/llama-3.2-nv-rerankqa-1b-v2:1.3.1
+      pullSecret: ngc-secret
+      authSecret: ngc-api-secret
+      model:
+        profiles:
+        - all
+  storage:
+    pvc:
+      create: true
+      storageClass: gp3-csi
+      size: "20Gi"
+      volumeAccessMode: ReadWriteOnce
+  resources: {}
