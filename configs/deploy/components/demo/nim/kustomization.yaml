@@ -1,0 +1,9 @@
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+
+resources:
+  - meta-cache.yaml
+  - meta-profiles.yaml
+  - meta-service.yaml
+  - pipeline-cache.yaml
+  - pipeline.yaml
