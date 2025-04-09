@@ -6,4 +6,4 @@ components:
   - components/keda-operator
 
 resources:
-  - ../../base
+  - base
