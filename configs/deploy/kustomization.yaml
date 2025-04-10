@@ -4,6 +4,9 @@ kind: Kustomization
 components:
   - components/demo
   - components/keda-operator
+  - components/nfd-operator
+  - components/nvidia-gpu-operator
+  - components/ocp-gpu-autoscale
 
 resources:
   - base

@@ -39,4 +39,6 @@
 
 ## Automation
 
-> TODO
+```sh
+until oc apply -k deploy ; do : ; done
+```
