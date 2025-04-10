@@ -1,0 +1,14 @@
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+
+resources:
+  -  https://github.com/redhat-na-ssa/demo-ai-gitops-catalog/components/cluster-configs/rook/overlays/1-replica-aws?ref=v0.16
+
+patches:
+- patch: |-
+    - op: add
+      path: /metadata/annotations/storageclass.kubernetes.io~1is-default-class
+      value: 'true'
+  target:
+    kind: StorageClass
+    name: rook-cephfs
