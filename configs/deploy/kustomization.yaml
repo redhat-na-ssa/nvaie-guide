@@ -6,6 +6,7 @@ components:
   - components/keda-operator
   - components/nfd-operator
   - components/nvidia-gpu-operator
+  - components/nim-operator
   - components/ocp-gpu-autoscale
   - components/rook-storage
 
