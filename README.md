@@ -40,5 +40,6 @@
 ## Automation
 
 ```sh
-until oc apply -k deploy ; do : ; done
+until oc apply -k configs/infra ; do : ; done
+until oc apply -k configs/software ; do : ; done
 ```
