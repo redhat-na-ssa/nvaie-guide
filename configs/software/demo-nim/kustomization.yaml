@@ -6,3 +6,6 @@ namespace: nim
 components:
   - nim
   - nim-scaled-object
+
+resources:
+  - namespace.yaml
