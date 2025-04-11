@@ -40,7 +40,7 @@ oc create -f configs/cluster-monitoring-config.yaml
 
 ## Nvidia
 
-Create a Nvidia account using this [link](https://www.nvidia.com/en-us/account/). 
+Create a Nvidia account using this [link](https://www.nvidia.com/en-us/account/).
 
 After creating your account, create a Personal API key using this [link](https://org.ngc.nvidia.com/setup/api-keys).
 
@@ -59,7 +59,7 @@ Clone this repository:
 ```bash
 git clone --depth 1 \
   https://github.com/redhat-na-ssa/nvaie-guide.git
-``` 
+```
 
 Change into the `nvaie-guide` directory:
 

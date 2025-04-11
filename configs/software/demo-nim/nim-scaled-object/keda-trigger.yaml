@@ -3,10 +3,10 @@ kind: TriggerAuthentication
 metadata:
   name: keda-trigger-auth-prometheus
 spec:
-  secretTargetRef: 
-  - parameter: bearerToken 
-    name: thanos-token 
-    key: token 
+  secretTargetRef:
+  - parameter: bearerToken
+    name: thanos-token
+    key: token
   - parameter: ca
     name: thanos-token
     key: ca.crt

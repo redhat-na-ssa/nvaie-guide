@@ -16,12 +16,12 @@ oc get machinesets -n openshift-machine-api
 
 ```text
 NAME                                    DESIRED   CURRENT   READY   AVAILABLE   AGE
-cluster-xxxxx-xxxxx-worker-us-xxxx-xx   1         1         1       1                
+cluster-xxxxx-xxxxx-worker-us-xxxx-xx   1         1         1       1               
 ```
 
 Make a copy of the existing MachineSet configuration:
 
-```bash 
+```bash
 MACHINESET=$(oc get machineset -n openshift-machine-api -o jsonpath='{.items[0].metadata.name}')
 oc get machineset $MACHINESET -n openshift-machine-api -o yaml > scratch/gpu-machineset.yaml
 ```
@@ -34,8 +34,8 @@ Edit `scratch/gpu-machineset.yaml`
   - [ ] Set `.spec.selector.matchLabels["machine.openshift.io/cluster-api-machineset"]` to `gpu-machineset`
   - [ ] Set `.spec.template.metadata.labels["machine.openshift.io/cluster-api-machineset"]` to `gpu-machineset`
   - [ ] Set `.spec.template.spec.providerSpec.value.instanceType` to `g6.4xlarge`
-  
-Finally, further edit `scratch/gpu-machineset.yaml` to add a taint, so that non-GPU specific workloads do not run on those machines. 
+ 
+Finally, further edit `scratch/gpu-machineset.yaml` to add a taint, so that non-GPU specific workloads do not run on those machines.
 
 The Nvidia GPU Operator by default adds a toleration for the key `nvidia.com/gpu`, so let's use this taint key.
 
@@ -52,7 +52,7 @@ spec:
     spec:
       [...]
       taints:
-      - effect: NoSchedule         
+      - effect: NoSchedule        
         key: nvidia.com/gpu
         value: ''
 ```
@@ -61,7 +61,7 @@ Create your GPU MachineSet:
 
 ```bash
 oc create -f scratch/gpu-machineset.yaml
-```      
+```     
 
 Verify the GPU MachineSet:
 
@@ -71,8 +71,8 @@ oc get machinesets -n openshift-machine-api
 
 ```text
 NAME                                    DESIRED   CURRENT   READY   AVAILABLE   AGE
-cluster-xxxxx-xxxxx-worker-us-xxxx-xx   1         1         1       1                
-gpu-machineset                          1         1                                
+cluster-xxxxx-xxxxx-worker-us-xxxx-xx   1         1         1       1               
+gpu-machineset                          1         1                               
 ```
 
 ## Install Node Feature Discovery Operator
@@ -114,7 +114,7 @@ Use the `rollout` command to verify the deployment. You might get an error if th
 Wait for the operator deployment:
 
 ```bash
-oc rollout status deploy/nfd-controller-manager -n openshift-nfd --timeout=300s      
+oc rollout status deploy/nfd-controller-manager -n openshift-nfd --timeout=300s     
 ```
 
 ```text
@@ -137,11 +137,11 @@ oc get pods -n openshift-nfd
 
 ```
 NAME                                      READY   STATUS    RESTARTS   AGE
-nfd-controller-manager-xxxxxxxxxx-xxxxx   2/2     Running   0             
-nfd-master-xxxxxxxxxx-xxxxx               1/1     Running   0             
-nfd-worker-xxxxx                          1/1     Running   0             
-nfd-worker-xxxxx                          1/1     Running   0             
-nfd-worker-xxxxx                          1/1     Running   0             
+nfd-controller-manager-xxxxxxxxxx-xxxxx   2/2     Running   0            
+nfd-master-xxxxxxxxxx-xxxxx               1/1     Running   0            
+nfd-worker-xxxxx                          1/1     Running   0            
+nfd-worker-xxxxx                          1/1     Running   0            
+nfd-worker-xxxxx                          1/1     Running   0            
 ```
 
 Verify the GPU device (NVIDIA uses the PCI ID `10de`) is discovered on the GPU node. This means the NFD Operator correctly identified the node from the GPU-enabled MachineSet.
@@ -208,7 +208,7 @@ install-xxxxx   gpu-operator-certified.v24.9.2   Automatic   true
 > The CSV version should match the latest supported [version](https://docs.nvidia.com/ai-enterprise/release-6/latest/support/support-matrix.html#supported-nvidia-configs/infrastructure-software) of the GPU Operator.
 
 > TODO: Explain Cluster Policy
- 
+
 Create a Cluster Policy configuration:
 
 ```bash
@@ -244,7 +244,7 @@ oc get pod -l openshift.driver-toolkit -n nvidia-gpu-operator
 
 ```text
 NAME                                                  READY   STATUS    RESTARTS   AGE
-nvidia-driver-daemonset-417.94.202503060903-0-xxxxx   2/2     Running   0             
+nvidia-driver-daemonset-417.94.202503060903-0-xxxxx   2/2     Running   0            
 ```
 
 ## Smoke Test

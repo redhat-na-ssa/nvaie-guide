@@ -36,7 +36,7 @@ We will use the [list-model-profiles](https://docs.nvidia.com/nim/large-language
 Run a job using the `list-model-profiles` utility:
 
 ```bash
-oc create -n nim -f configs/software/nim/meta-profiles.yaml 
+oc create -n nim -f configs/software/nim/meta-profiles.yaml
 ```
 
 Wait for job to complete:
@@ -204,7 +204,7 @@ cat configs/software/nim/keda-meta-scaledobject.yaml | grep annotation -A 2
 Create `ScaledObject`:
 
 ```bash
-oc create -n nim -f configs/software/nim/keda-meta-scaledobject.yaml 
+oc create -n nim -f configs/software/nim/keda-meta-scaledobject.yaml
 ```
 
 Verify the KEDA external metric is created:
@@ -265,7 +265,7 @@ oc get -n nim hpa meta-llama3-8b-instruct
 
 ```text
 NAME                      REFERENCE                            TARGETS   MINPODS   MAXPODS   REPLICAS   AGE
-meta-llama3-8b-instruct   Deployment/meta-llama3-8b-instruct   18m/10m   1         2         2          
+meta-llama3-8b-instruct   Deployment/meta-llama3-8b-instruct   18m/10m   1         2         2         
 ```
 
 > TODO: Verify if larger VM size can run two copies of the inference service
@@ -277,7 +277,7 @@ oc get pods -n nim -l app=meta-llama3-8b-instruct
 ```text
 NAME                                       READY   STATUS             RESTARTS        AGE
 meta-llama3-8b-instruct-xxxxxxxxxx-xxxxx   1/1
-meta-llama3-8b-instruct-xxxxxxxxxx-xxxxx   0/1     
+meta-llama3-8b-instruct-xxxxxxxxxx-xxxxx   0/1    
 ```
 
 ### Cleanup
@@ -323,9 +323,9 @@ oc get -n nim nimcache
 
 ```text
 NAME                        STATUS   PVC                             AGE
-meta-llama3-8b-instruct     Ready    meta-llama3-8b-instruct-pvc     
-nv-embedqa-e5-v5            Ready    nv-embedqa-e5-v5-pvc            
-nv-rerankqa-mistral-4b-v3   Ready    nv-rerankqa-mistral-4b-v3-pvc 
+meta-llama3-8b-instruct     Ready    meta-llama3-8b-instruct-pvc    
+nv-embedqa-e5-v5            Ready    nv-embedqa-e5-v5-pvc           
+nv-rerankqa-mistral-4b-v3   Ready    nv-rerankqa-mistral-4b-v3-pvc
 ```
 
 Deploy the models together as a `NIMPipeline`:
@@ -342,7 +342,7 @@ oc get -n nim nimpipeline
 
 ```text
 NAME       STATUS   AGE
-pipeline   Ready    
+pipeline   Ready   
 ```
 
 View the NIM services running:
@@ -353,8 +353,8 @@ oc get pods -l app.kubernetes.io/part-of=nim-service
 
 ```text
 NAME                                      READY   STATUS    RESTARTS   AGE
-nv-embedqa-e5-v5-6f97b4f66b-2qqwg         1/1     Running   0          
-nv-rerank-mistral-4b-v3-7f467794f-z9j6g   1/1     Running   0          
+nv-embedqa-e5-v5-6f97b4f66b-2qqwg         1/1     Running   0         
+nv-rerank-mistral-4b-v3-7f467794f-z9j6g   1/1     Running   0         
 ```
 
 ### Cleanup

@@ -19,7 +19,7 @@
   1. [NIM Operator](docs/infra/nim-operator.md)
   1. Network Operator (info only)
   1. vGPU (info only)
-  1. Base Command Manager (info only)  
+  1. Base Command Manager (info only)
 - Software
   1. TensorRT
   1. Triton Inference Server
@@ -27,7 +27,7 @@
   1. PyTorch and TensorFlow 2
   1. NeMo Framework (Neural Modules)
   1. [NIM](docs/software/nim.md)
-  1. RAPIDS and RAPIDS Accelerator for Apache Spark 
+  1. RAPIDS and RAPIDS Accelerator for Apache Spark
   1. TAO (Computer Vision)
   1. Riva (Speech-to-Text)
   1. DeepStream (Video)

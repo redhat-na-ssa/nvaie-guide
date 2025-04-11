@@ -1,6 +1,6 @@
 # Time Slice
 
-By default, only one workload can run on a single GPU. In some use cases though, you may want to share (or partition) the GPU to allow multiple workloads to run on the single GPU. 
+By default, only one workload can run on a single GPU. In some use cases though, you may want to share (or partition) the GPU to allow multiple workloads to run on the single GPU.
 
 For example, you might want to run multiple copies of an inference service on a GPU to increase the throughput of requests. Note that this comes at the cost of higher latency per request, because multiple inference services are now sharing the same GPU.
 
@@ -41,7 +41,7 @@ oc patch clusterpolicy gpu-cluster-policy \
     -p '{"spec": {"devicePlugin": {"config": {"name": "device-plugin-config"}}}}'
 ```
 
-The GPU Operator is now aware of the sharing configuration. Now you have to apply the configuration to the specific GPU machines that you want partitioned. 
+The GPU Operator is now aware of the sharing configuration. Now you have to apply the configuration to the specific GPU machines that you want partitioned.
 
 In this case, we only want to apply this configuration to the GPU MachineSet that you created.
 
