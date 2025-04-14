@@ -2,17 +2,13 @@
 
 [PyTorch](https://pytorch.org) is an optimized tensor library for deep learning using GPUs and CPUs.
 
-NVIDIA provides a [certified PyTorch container](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/pytorch) to 
-make things a bit easier.
+NVIDIA provides a [PyTorch container](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/pytorch) to 
+make things a bit easier for developers.
 
 #### Getting started with the NVIDIA PyTorch container.
 ##### RHEL9.5
-To deploy pytorch on RHEL 9.5, you can use the NVIDIA PyTorch container. Here are the steps to get started:
 
-The NVIDIA PyTorch container is a pre-configured container that provides a ready-to-use environment for deploying PyTorch applications on OpenShift. To use it, you can follow these steps:
-
-
-To get started with the NVIDIA PyTorch container on RHEL 9.5, follow these steps:
+The NVIDIA PyTorch container is a pre-configured container that provides a ready-to-use environment for deploying PyTorch applications. 
 
 1. Prerequisites:
  - a. Install `podman`.
