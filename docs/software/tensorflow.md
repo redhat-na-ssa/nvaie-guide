@@ -22,7 +22,7 @@ Example output:
 ```
 GPU 0: NVIDIA L4 (UUID: GPU-8b456645-6ed1-cf79-714e-19b2657eca53)
 ```
-2. Set the TAG and IMAGE variables then run the NVIDIA Tensorflow container. The last line should indicate that a GPU was found.
+2. Set the TAG and IMAGE variables then run the NVIDIA Tensorflow container. The last line should indicate that Tensorflow found a GPU.
 ```bash
 TAG=25.02-tf2-py3
 IMAGE=nvcr.io/nvidia/tensorflow:${TAG}

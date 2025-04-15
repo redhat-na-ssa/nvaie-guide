@@ -22,7 +22,9 @@ Example output:
 ```
 GPU 0: NVIDIA L4 (UUID: GPU-8b456645-6ed1-cf79-714e-19b2657eca53)
 ```
-2. Set the TAG variable and run the NVIDIA PyTorch container to check for `cuda` to be printed last.
+2. Set the TAG and IMAGE variables and run the NVIDIA PyTorch container to check for `cuda` to be printed last which
+indicates that PyTorch found a GPU.
+
 ```bash
 TAG=25.03-py3
 IMAGE=nvcr.io/nvidia/pytorch:${TAG}
