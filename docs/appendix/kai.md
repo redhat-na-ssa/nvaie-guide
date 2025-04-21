@@ -1,7 +1,7 @@
 # Kubernetes AI (KAI) Scheduler
 
 > [!IMPORTANT]
-> Make sure you have configured Time Slicing, see [Time Slicing](docs/infra/gpu-timeslice.md).
+> Make sure you have configured Time Slicing, see [Time Slicing](../infra/gpu-timeslice.md).
 
 ## Setup
 
