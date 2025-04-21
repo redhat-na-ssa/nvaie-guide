@@ -145,30 +145,38 @@ Enable GPU sharing:
 helm upgrade -i kai-scheduler oci://ghcr.io/nvidia/kai-scheduler/kai-scheduler -n kai-scheduler --create-namespace --version v0.4.3 --set "global.gpuSharing=true"
 ```
 
-Submit a pod that requests `0.5` of GPU memory:
+View a sample deployment with `gpu-fraction` set:
 
 ```bash
-oc create -f https://raw.githubusercontent.com/theckang/KAI-Scheduler/refs/heads/main/docs/gpu-sharing/gpu-sharing.yaml
-```
-
-View the scheduled pod:
-
-```bash
-oc get pods -l runai/queue=test -n sandbox
+cat configs/appendix/whisper-gpu-sharing.yaml | grep annotations -A 1
 ```
 
 ```text
-NAME          READY   STATUS    RESTARTS   AGE
-gpu-sharing   1/1     Running   0          
+
+      annotations:
+        gpu-fraction: "0.5"
+
 ```
 
-It is **really important** to note that requested GPU memory does not decrement the allocatable capacity on the node:
+Submit the deployment that requests `0.5` of GPU memory:
+
+```bash
+oc create -f configs/appendix/whisper-gpu-sharing.yaml
+```
+
+Wait for the deployment:
+
+```bash
+oc rollout status deploy/whisper-tiny -n sandbox --timeout=600s
+```
+
+It is **really important** to note that the requested GPU memory does not decrement the allocatable capacity on the node:
 
 ```bash
 oc get node --selector=nvidia.com/gpu.product=NVIDIA-L4-SHARED -o jsonpath-as-json='{.items[0].status.allocatable}'
 ```
 
-> Node still shows full GPU capacity is available
+> The node shows full GPU capacity is available even though we deployed a pod that requested half of the GPU's memory
 
 ```text
 [
@@ -187,7 +195,17 @@ oc get node --selector=nvidia.com/gpu.product=NVIDIA-L4-SHARED -o jsonpath-as-js
 Furthermore, it is also **extremely important** to note that the process on the GPU has full access to the GPU memory (even though we asked for `0.5` GPU memory).
 
 ```bash
-> todo
+oc exec pod $(oc get pod -n sandbox -l runai/queue=test -ojsonpath='{.items[0].metadata.name}') -- nvidia-smi
 ```
 
+```text
+---
+|=========================================+========================+======================|
+|   0  NVIDIA L4                      On  |   00000000:31:00.0 Off |                    0 |
+| N/A   38C    P0             26W /   72W |   17143MiB /  23034MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+---
+```
 
+The NVIDIA L4 has 24GB of memory and the deployment currently uses ~75% of the GPU's total memory, even though we asked the scheduler to request `0.5` of GPU memory.
