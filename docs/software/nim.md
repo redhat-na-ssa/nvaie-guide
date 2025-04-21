@@ -5,8 +5,8 @@
 > TODO: Note L4 is not technically supported, see [supported GPUs](https://docs.nvidia.com/nim/large-language-models/latest/supported-models.html#gpus)
 
 > [!IMPORTANT]
-> Make sure you have user workload monitoring enabled, see the [Prerequisites](docs/prereqs.md).\
-> Make sure you have your Nvidia API key, see the [Prerequisites](docs/prereqs.md).
+> Make sure you have user workload monitoring enabled, see the [Prerequisites](../prereqs.md).\
+> Make sure you have your Nvidia API key, see the [Prerequisites](../prereqs.md).
 
 Let's create a namespace `nim` to work in.
 
