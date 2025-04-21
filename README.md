@@ -35,7 +35,7 @@
   1. Clara Parabricks (Genomics)
   1. MONAI (Medical Imaging)
 - Appendix
-  1. KAI Scheduler
+  1. [KAI Scheduler](docs/appendix/kai.md)
   1. Kserve with Triton Inference Server
   1. Kserve with NIM
 
