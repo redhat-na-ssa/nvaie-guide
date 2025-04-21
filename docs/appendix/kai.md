@@ -8,7 +8,8 @@
 Install the scheduler:
 
 ```bash
-helm upgrade -i kai-scheduler oci://ghcr.io/nvidia/kai-scheduler/kai-scheduler -n kai-scheduler --create-namespace --version v0.4.3
+helm upgrade -i kai-scheduler oci://ghcr.io/nvidia/kai-scheduler/kai-scheduler \
+  -n kai-scheduler --create-namespace --version v0.4.3
 ```
 
 Create a sandbox project:
@@ -137,7 +138,7 @@ oc apply -f https://raw.githubusercontent.com/NVIDIA/KAI-Scheduler/refs/heads/ma
 
 ### GPU Sharing
 
-KAI supports GPU sharing by requesting a portion of GPU memory, but this is not enforced by the scheduler. Per the [docs](https://github.com/NVIDIA/KAI-Scheduler/blob/main/docs/gpu-sharing/README.md), *KAI Scheduler does not enforce memory allocation limit or performs memory isolation between processes. In order to make sure the pods share the GPU device nicely it is important that the running processes will allocate GPU memory up to the requested amount and not beyond that. *
+KAI supports GPU sharing by requesting a portion of GPU memory, but this is not enforced by the scheduler. Per the [docs](https://github.com/NVIDIA/KAI-Scheduler/blob/main/docs/gpu-sharing/README.md), *KAI Scheduler does not enforce memory allocation limit or performs memory isolation between processes. In order to make sure the pods share the GPU device nicely it is important that the running processes will allocate GPU memory up to the requested amount and not beyond that.*
 
 Enable GPU sharing:
 
@@ -209,3 +210,11 @@ oc exec pod $(oc get pod -n sandbox -l runai/queue=test -ojsonpath='{.items[0].m
 ```
 
 The NVIDIA L4 has 24GB of memory and the deployment currently uses ~75% of the GPU's total memory, even though we asked the scheduler to request `0.5` of GPU memory.
+
+### Cleanup
+
+Delete the deployment:
+
+```bash
+oc delete deploy/whisper-tiny -n sandbox
+```
