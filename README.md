@@ -24,8 +24,9 @@
   1. TensorRT
   1. Triton Inference Server
   1. AI-Dynamo
-  1. [PyTorch](docs/software/pytorch.md)
-  1. [TensorFlow](docs/software/tensorflow.md)
+  1. [CUDA](docs/software/cuda/cuda.md)
+  1. [PyTorch](docs/software/pytorch/pytorch.md)
+  1. [TensorFlow](docs/software/tensorflow/tensorflow.md)
   1. NeMo Framework (Neural Modules)
   1. [NIM](docs/software/nim.md)
   1. RAPIDS and RAPIDS Accelerator for Apache Spark 
