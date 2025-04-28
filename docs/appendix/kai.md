@@ -79,6 +79,10 @@ oc delete pytorchjob pytorch-dist-mnist-nccl
 
 ### Workload Priority
 
+#### Single Queue
+
+Let's demonstrate how to preempt a pod in a single queue. This functionality is identical to default Kubernetes priority/preemption.
+
 Modify the `test` queue with a GPU limit of `1`:
 
 ```bash
@@ -122,6 +126,152 @@ build-pod   1/1     Running       0
 train-pod   1/1     Terminating   0          
 ```
 
+#### Two Queues
+
+In this example, we demonstrate how to preempt pods in two different queues, which is a differentiator compared to default Kubernetes priority/preemption.
+
+Delete the `test` queue:
+
+```bash
+oc delete queue test
+```
+
+Create two queues `team-a` and `team-b`:
+
+```bash
+oc apply -f https://raw.githubusercontent.com/theckang/KAI-Scheduler/refs/heads/main/docs/priority/team-example/two-team/two-team-queues.yaml 
+```
+
+Submit a pod with `train` priority (value 50) to `team-a` and `team-b` queues:
+
+```bash
+oc create -f https://raw.githubusercontent.com/theckang/KAI-Scheduler/refs/heads/main/docs/priority/team-example/two-team/train-team-a.yaml
+oc create -f https://raw.githubusercontent.com/theckang/KAI-Scheduler/refs/heads/main/docs/priority/team-example/two-team/train-team-b.yaml
+```
+
+```bash
+oc get pods -l 'runai/queue in (team-a,team-b)'
+```
+
+```text
+NAME               READY   STATUS    RESTARTS   AGE
+train-pod-team-a   1/1     Running   0          
+train-pod-team-b   1/1     Running   0          
+```
+
+Preempt both of these pods with `build` priority (value 100) in each queue:
+
+```bash
+oc create -f https://raw.githubusercontent.com/theckang/KAI-Scheduler/refs/heads/main/docs/priority/team-example/two-team/build-team-a.yaml
+oc create -f https://raw.githubusercontent.com/theckang/KAI-Scheduler/refs/heads/main/docs/priority/team-example/two-team/build-team-b.yaml
+```
+
+View the pods:
+
+```bash
+oc get pods -l 'runai/queue in (team-a,team-b)'
+```
+
+```text
+NAME               READY   STATUS        RESTARTS   AGE
+build-pod-team-a   1/1     Running       0          
+build-pod-team-b   1/1     Running       0          
+train-pod-team-a   1/1     Terminating   0          
+train-pod-team-b   1/1     Terminating   0          
+```
+
+#### Three Queues
+
+Let's run a more complicated scenario. In this example, there are three teams (Team A,B,C) each with their own queue. Each team has a quota of `1` GPU with a limit of `3`. This means that each team is guaranteed `1` GPU and can use up to `3` GPUs if the other teams are not using their GPUs.
+
+However, once teams start to use their "faire share" of GPUs, the team that is using "more GPUs" should have their workload preempted.
+
+Delete the pods:
+
+```bash
+oc delete pods --all -n sandbox
+```
+
+Configure three queues:
+
+```bash
+oc apply -f https://github.com/theckang/KAI-Scheduler/blob/main/docs/priority/team-example/three-team/three-team-queues.yaml 
+```
+
+Create a workload that uses 3 GPUs in `team-a` queue:
+
+```bash
+oc create -f https://raw.githubusercontent.com/theckang/KAI-Scheduler/refs/heads/main/docs/priority/team-example/three-team/train-team-a.yaml
+```
+
+View the pods
+
+```bash
+oc get pods -l 'runai/queue in (team-a,team-b,team-c)'
+```
+
+```text
+NAME               READY   STATUS    RESTARTS   AGE
+train-pod-team-a   1/1     Running   0          
+```
+
+Create a workload that uses 1 GPU in `team-b` queue:
+
+```bash
+oc create -f https://raw.githubusercontent.com/theckang/KAI-Scheduler/refs/heads/main/docs/priority/team-example/three-team/train-team-b.yaml 
+```
+
+This workload fits because the parent queue `default` has no limit and can use up to our hard limit (4 GPUs from time slicing).
+
+View the pods
+
+```bash
+oc get pods -l 'runai/queue in (team-a,team-b,team-c)'
+```
+
+```text
+NAME               READY   STATUS    RESTARTS   AGE
+train-pod-team-a   1/1     Running   0          
+train-pod-team-b   1/1     Running   0          
+```
+
+Create a workload that uses 1 GPU in `team-c` queue:
+
+```bash
+oc create -f https://raw.githubusercontent.com/theckang/KAI-Scheduler/refs/heads/main/docs/priority/team-example/three-team/train-team-c.yaml
+```
+
+This workload does not fit since 4 GPUs have been allocated. Team A is using 3 GPUs (over its quota of `1`) so the workload in `team-a` is preempted:
+
+View the pods:
+
+```bash
+oc get pods -l 'runai/queue in (team-a,team-b,team-c)'
+```
+
+```text
+NAME               READY   STATUS        RESTARTS   AGE
+train-pod-team-a   1/1     Terminating   0          
+train-pod-team-b   1/1     Running       0          
+train-pod-team-c   0/1     Pending       0          
+```
+
+Team A's workload is preempted so that Team C can get their fair share of its GPU back.
+
+View the pods after some time:
+
+```bash
+oc get pods -l 'runai/queue in (team-a,team-b,team-c)'
+```
+
+```text
+NAME               READY   STATUS    RESTARTS   AGE
+train-pod-team-b   1/1     Running   0          
+train-pod-team-c   1/1     Running   0          
+```
+
+Team B and Team C are now running their workloads on GPUs.
+
 ### Cleanup
 
 Delete the pods:
@@ -130,7 +280,13 @@ Delete the pods:
 oc delete pods --all -n sandbox
 ```
 
-Restore the queue limit:
+Delete any queues:
+
+```bash
+oc delete queues --all
+```
+
+Restore the default/test queues and limit:
 
 ```bash
 oc apply -f https://raw.githubusercontent.com/NVIDIA/KAI-Scheduler/refs/heads/main/docs/quickstart/queues.yaml
@@ -196,7 +352,7 @@ oc get node --selector=nvidia.com/gpu.product=NVIDIA-L4-SHARED -o jsonpath-as-js
 Furthermore, it is also **extremely important** to note that the process on the GPU has full access to the GPU memory (even though we asked for `0.5` GPU memory).
 
 ```bash
-oc exec pod $(oc get pod -n sandbox -l runai/queue=test -ojsonpath='{.items[0].metadata.name}') -- nvidia-smi
+oc exec $(oc get pod -n sandbox -l runai/queue=test -ojsonpath='{.items[0].metadata.name}') -- nvidia-smi
 ```
 
 ```text
