@@ -365,7 +365,3 @@ Delete the NIM pipeline:
 oc delete -n nim nimpipeline pipeline
 ```
 
-## NeMo
-
-> TODO: Bring a NeMo custom model from the NeMo section and deploy it as a NIM
-
