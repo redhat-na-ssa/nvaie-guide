@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nemo-deployment
+  labels:
+    app: nemo-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nemo-deployment
+  template:
+    metadata:
+      labels:
+        app: nemo-deployment
+    spec:
+      tolerations:
+      - effect: NoSchedule
+        key: nvidia.com/gpu
+      volumes:
+      - name: shm
+        emptyDir:
+          medium: Memory
+          sizeLimit: "2Gi"
+      containers:
+      - name: nemo-deployment
+        image: nvcr.io/nvidia/nemo:25.02
+        command: ["/bin/sh", "-c"]
+        args: [
+          "jupyter notebook --allow-root --ip 0.0.0.0 --port 8088 --no-browser --NotebookApp.token=''"
+        ]
+        ports:
+        - containerPort: 8088
+        resources:
+          limits:
+            nvidia.com/gpu: "4"
+          requests:
+            nvidia.com/gpu: "4"
+        volumeMounts:
+        - name: shm
+          mountPath: /dev/shm
