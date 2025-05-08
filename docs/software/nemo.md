@@ -66,8 +66,6 @@ Open JupyterLab by navigating to `View` -> `Open JupyterLab`.
 
 ## Tutorials
 
-Let's run tutorials for each domain (text, multimodal, audio, text to speech, and vision).
-
 ### Large Language Models
 
 The NeMo library provides the ability to pretrain, fine-tune, and hyperparameter tune a Large Language Model. You can view examples of these capabilities here:
