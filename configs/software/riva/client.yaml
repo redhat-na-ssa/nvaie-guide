@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: riva-client
+  labels:
+    app: "rivaasrclient"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "rivaasrclient"
+  template:
+    metadata:
+      labels:
+        app: "rivaasrclient"
+    spec:
+      imagePullSecrets:
+      - name: imagepullsecret
+      containers:
+      - name: riva-client
+        image: "nvcr.io/nvidia/riva/riva-speech:2.18.0"
+        command: ["/bin/bash"]
+        args: ["-c", "while true; do sleep 5; done"]
