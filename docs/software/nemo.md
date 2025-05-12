@@ -7,7 +7,7 @@ The NeMo Framework supports Large Language Models (LLMs), Multimodal Models (MMs
 ## Setup
 
 > [!IMPORTANT]
-> Make sure you have configured [GPU Operator](../docs/infra/gpu-operator.md).
+> Make sure you have configured [GPU Operator](../infra/gpu-operator.md).
 
 There are [three primary ways](https://github.com/NVIDIA/NeMo?tab=readme-ov-file#install-nemo-framework) of installing NeMo:
 
