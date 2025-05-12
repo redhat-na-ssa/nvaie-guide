@@ -18,6 +18,6 @@ spec:
       - name: imagepullsecret
       containers:
       - name: riva-client
-        image: "nvcr.io/nvidia/riva/riva-speech:2.18.0"
+        image: "nvcr.io/nvidia/riva/riva-speech:2.19.0"
         command: ["/bin/bash"]
         args: ["-c", "while true; do sleep 5; done"]

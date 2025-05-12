@@ -39,6 +39,8 @@ Assign RBAC permissions to service account for riva
 oc adm policy add-scc-to-user nonroot-v2 -z default
 ```
 
+> Add a toleration for GPUs to the `riva-api/templates/triton.yaml` file
+
 Deploy
 
 ```sh
