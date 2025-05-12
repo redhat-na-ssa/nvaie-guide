@@ -8,8 +8,7 @@ CUDA is a foundational API that is closest to the GPU hardware.
 Higher level AI/ML frameworks such as PyTorch and Tensorflow
 are built on top of CUDA to achieve acceleration on NVIDIA GPU platforms.
 
-The CUDA compiler is included on NVIDIA's Pytorch and
-Tensorflow containers.
+The CUDA compiler is included on NVIDIA's [CUDA](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/cuda/tags), Pytorch and Tensorflow containers.
 
 ##### Compiling and running a few simple code examples.
 
