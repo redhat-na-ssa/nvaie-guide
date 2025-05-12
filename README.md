@@ -31,7 +31,7 @@
   1. [NIM](docs/software/nim.md)
   1. RAPIDS and RAPIDS Accelerator for Apache Spark 
   1. TAO (Computer Vision)
-  1. Riva (Speech-to-Text)
+  1. [Riva (Speech-to-Text)](docs/software/riva.md)
   1. DeepStream (Video)
   1. Clara Parabricks (Genomics)
   1. MONAI (Medical Imaging)
