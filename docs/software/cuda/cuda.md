@@ -15,9 +15,9 @@ Tensorflow containers.
 
 ```bash
 cd docs/software/cuda
-TAG=25.03-py3
-IMAGE=nvcr.io/nvidia/pytorch:${TAG}
-podman run --rm -it --name pytorch -v $(pwd)/:/cuda:z --security-opt=label=disable --device nvidia.com/gpu=all ${IMAGE} -- bash
+TAG=12.9.0-cudnn-devel-ubi9
+IMAGE=nvcr.io/nvidia/cuda:${TAG}
+podman run --rm -it --name cuda -v $(pwd)/:/cuda:z --security-opt=label=disable --device nvidia.com/gpu=all ${IMAGE} -- bash
 ```
 
 ```bash

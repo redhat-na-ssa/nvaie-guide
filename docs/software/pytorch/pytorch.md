@@ -51,11 +51,11 @@ This [PyTorch quickstart tutorial](https://pytorch.org/tutorials/beginner/basics
 way to get started with some Python code. As a start, try the Python script from the [github repo](https://github.com/pytorch/tutorials/blob/main/beginner_source/basics/quickstart_tutorial.py) on RHEL9.
 ```bash
 git clone https://github.com/pytorch/tutorials.git
-
+cd tutorials
 TAG=25.03-py3
 IMAGE=nvcr.io/nvidia/pytorch:${TAG}
 
-podman run --rm -it --name pytorch -v $(pwd)/tutorials/beginner_source/basics:/basics:z --security-opt=label=disable --device nvidia.com/gpu=all ${IMAGE} -- python /basics/quickstart_tutorial.py
+podman run --rm -it --name pytorch -v $(pwd)/beginner_source/basics:/basics:z --security-opt=label=disable --device nvidia.com/gpu=all ${IMAGE} -- python /basics/quickstart_tutorial.py
 ```
 Example Output:
 ```
