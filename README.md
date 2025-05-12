@@ -22,7 +22,7 @@
   1. Base Command Manager (info only)  
 - Software
   1. TensorRT
-  1. Triton Inference Server
+  1. [Triton Inference Server](docs/software/triton/README.md)
   1. AI-Dynamo
   1. [CUDA](docs/software/cuda/cuda.md)
   1. [PyTorch](docs/software/pytorch/pytorch.md)
