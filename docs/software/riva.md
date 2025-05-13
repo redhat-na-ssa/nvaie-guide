@@ -3,8 +3,8 @@
 ## Setup
 
 > [!IMPORTANT]
-> Make sure you have configured [GPU Operator](../infra/gpu-operator.md).\
-> Make sure you have your Nvidia API key, see the [Prerequisites](../prereqs.md).
+> Configure Nvidia API Key in [Prerequisites](../prereqs.md).\
+> Configure [GPU Operator](../infra/gpu-operator.md).
 
 Download helm chart
 

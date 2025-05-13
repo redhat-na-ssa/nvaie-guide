@@ -5,9 +5,9 @@
 > TODO: Note L4 is not technically supported, see [supported GPUs](https://docs.nvidia.com/nim/large-language-models/latest/supported-models.html#gpus)
 
 > [!IMPORTANT]
-> Make sure you have user workload monitoring enabled, see the [Prerequisites](../prereqs.md).\
-> Make sure you have your Nvidia API key, see the [Prerequisites](../prereqs.md).\
-> Make sure you have configured the GPU Operator, see [GPU Operator](../infra/gpu-operator.md).
+> Configure User Workload Monitoring and Nvidia API Key in [Prerequisites](../prereqs.md).\
+> Configure [GPU Operator](../infra/gpu-operator.md).\
+> Configure [NIM Operator](../infra/nim-operator.md).
 
 Let's create a namespace `nim` to work in.
 

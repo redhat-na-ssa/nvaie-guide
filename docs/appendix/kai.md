@@ -1,8 +1,8 @@
 # Kubernetes AI (KAI) Scheduler
 
 > [!IMPORTANT]
-> Make sure you have configured GPU Operator, see [GPU Operator](../infra/gpu-operator.md).
-> Make sure you have configured Time Slicing, see [Time Slicing](../infra/gpu-timeslice.md).
+> Configure [GPU Operator](../infra/gpu-operator.md).\
+> Configure [Time Slicing](../infra/gpu-timeslice.md).
 
 ## Setup
 
