@@ -3,12 +3,12 @@
 ## Setup
 
 > [!IMPORTANT]
-> Make sure you have configured [GPU Operator](../infra/gpu-operator.md).\
-> Make sure you have your Nvidia API key, see the [Prerequisites](../prereqs.md).
+> Configure Nvidia API Key in [Prerequisites](../prereqs.md).\
+> Configure [GPU Operator](../infra/gpu-operator.md).
 
 Download helm chart
 
-```sh
+```bash
 helm fetch https://helm.ngc.nvidia.com/nvidia/riva/charts/riva-api-2.19.0.tgz \
         --username=\$oauthtoken --password=$NGC_API_KEY --untar
 ```
@@ -27,31 +27,31 @@ Edit the `values.yaml` with
       # - nvidia/riva/rmir_asr_whisper_large_ofl:2.19.0
 ```
 
-Create project
+Create project:
 
-```sh
+```bash
 oc new-project riva
 ```
 
-Assign RBAC permissions to service account for riva
+Assign RBAC permissions to service account for Riva:
 
-```sh
+```bash
 oc adm policy add-scc-to-user nonroot-v2 -z default
 ```
 
 > Add a toleration for GPUs to the `riva-api/templates/triton.yaml` file
 
-Deploy
+Deploy:
 
-```sh
+```bash
 helm install riva-api riva-api
 ```
 
-Fix secret
+Fix secret:
 
 > There is a bug in the helm chart and requires to manually create the model pull secret
 
-```sh
+```bash
 oc create secret generic modelpullsecret --from-literal=apikey=$NGC_API_KEY
 ```
 
@@ -59,37 +59,40 @@ oc create secret generic modelpullsecret --from-literal=apikey=$NGC_API_KEY
 
 Riva exposes a gRPC API instead of HTTP, so it needs a client
 
-```sh
+```bash
 oc create -f configs/software/riva/client.yaml
 ```
 
 Get a reference to the client pod
 
-```sh
+```bash
 RIVA_CLIENT=$(oc get pods -l app=rivaasrclient -o jsonpath='{.items[0].metadata.name}')
 ```
 
 Run a transcription smoke test
 
-```sh
-oc exec $RIVA_CLIENT -- clients/riva_streaming_asr_client --print_transcripts --audio_file=/opt/riva/wav/en-US_sample.wav --automatic_punctuation=true --riva_uri=riva-api:50051
+```bash
+oc exec $RIVA_CLIENT -- clients/riva_streaming_asr_client --print_transcripts \
+  --audio_file=/opt/riva/wav/en-US_sample.wav --automatic_punctuation=true --riva_uri=riva-api:50051
 ```
 
 Run a streaming transcription
 
-```sh
-oc exec $RIVA_CLIENT -- python3 examples/transcribe_file.py --input-file /opt/riva/wav/en-US_sample.wav --server riva-api:50051
+```bash
+oc exec $RIVA_CLIENT -- python3 examples/transcribe_file.py \
+  --input-file /opt/riva/wav/en-US_sample.wav --server riva-api:50051
 ```
 
 Run an offline transcription
 
-```sh
-oc exec $RIVA_CLIENT -- python3 examples/transcribe_file_offline.py --input-file /opt/riva/wav/en-US_sample.wav --server riva-api:50051
+```bash
+oc exec $RIVA_CLIENT -- python3 examples/transcribe_file_offline.py \
+  --input-file /opt/riva/wav/en-US_sample.wav --server riva-api:50051
 ```
 
 List available ASR models in your Riva server
 
-```sh
+```bash
 oc exec $RIVA_CLIENT -- python3 examples/transcribe_file.py --list-models --server riva-api:50051
 ```
 
@@ -106,7 +109,7 @@ oc exec $RIVA_CLIENT -- python3 examples/transcribe_file_offline.py --model-name
 
 Run a streaming transcription with the conformer streaming model
 
-```sh
+```bash
 oc exec $RIVA_CLIENT -- python3 examples/transcribe_file.py --model-name conformer-en-US-asr-streaming-asr-bls-ensemble\
   --input-file /opt/riva/wav/en-US_sample.wav --server riva-api:50051
 ```
@@ -115,10 +118,12 @@ oc exec $RIVA_CLIENT -- python3 examples/transcribe_file.py --model-name conform
 
 Run a streaming transcription with the parakeet streaming model
 
-```sh
+```bash
 oc exec $RIVA_CLIENT -- python3 examples/transcribe_file.py --model-name parakeet-0.6b-en-US-asr-streaming-throughput-asr-bls-ensemble\
   --input-file /opt/riva/wav/en-US_sample.wav --server riva-api:50051
 ```
+
+## Audio Mic Transcription
 
 **Optional: Transcribe live with an audio mic**
 
