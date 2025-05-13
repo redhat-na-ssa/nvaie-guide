@@ -27,8 +27,7 @@ oc scale machineset $MACHINESET -n openshift-machine-api --replicas=1
 
 ### Storage
 
-> TODO: Add longhorn RWX
-
+> TODO: Add RWX
 
 ### Monitoring
 
@@ -73,10 +72,7 @@ Create a scratch directory:
 mkdir scratch
 ```
 
-You are going to use the official Nvidia Helm charts for some components such as Nvidia RIVA.
-
-> TODO: Add link to Riva section
+You are going to use the official Nvidia Helm charts for some components such as [Nvidia RIVA](software/riva.md).
 
 Follow the Helm [docs](https://helm.sh/docs/intro/install/) to install Helm.
 
-Next: [GPU Operator](infra/gpu-operator.md)

@@ -6,7 +6,8 @@
 
 > [!IMPORTANT]
 > Make sure you have user workload monitoring enabled, see the [Prerequisites](../prereqs.md).\
-> Make sure you have your Nvidia API key, see the [Prerequisites](../prereqs.md).
+> Make sure you have your Nvidia API key, see the [Prerequisites](../prereqs.md).\
+> Make sure you have configured the GPU Operator, see [GPU Operator](../infra/gpu-operator.md).
 
 Let's create a namespace `nim` to work in.
 
@@ -353,8 +354,8 @@ oc get pods -l app.kubernetes.io/part-of=nim-service
 
 ```text
 NAME                                      READY   STATUS    RESTARTS   AGE
-nv-embedqa-e5-v5-6f97b4f66b-2qqwg         1/1     Running   0          
-nv-rerank-mistral-4b-v3-7f467794f-z9j6g   1/1     Running   0          
+nv-embedqa-e5-v5-xxxxxxxxxx-xxxxx         1/1     Running   0          
+nv-rerank-mistral-4b-v3-xxxxxxxxx-xxxxx   1/1     Running   0          
 ```
 
 ### Cleanup

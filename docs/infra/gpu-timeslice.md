@@ -83,4 +83,3 @@ oc get node --selector=nvidia.com/gpu.product=NVIDIA-L4-SHARED -o jsonpath-as-js
 ]
 ```
 
-Next: [MIG](gpu-mig.md)
