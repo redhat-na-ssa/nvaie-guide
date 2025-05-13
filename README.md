@@ -15,7 +15,7 @@
 - Infrastructure
   1. [GPU Operator](docs/infra/gpu-operator.md)
   1. [Time Slice](docs/infra/gpu-timeslice.md)
-  1. [Optional - MIG](docs/infra/gpu-mig.md)
+  1. [MIG](docs/infra/gpu-mig.md)
   1. [NIM Operator](docs/infra/nim-operator.md)
   1. Network Operator (info only)
   1. vGPU (info only)
