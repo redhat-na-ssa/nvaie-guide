@@ -42,7 +42,7 @@ HOST="https://"$(oc get route triton-server -o jsonpath='{.spec.host}')
 ```bash
 curl -vk $HOST/v2/health/ready
 ```
-```bash
+```console
 < HTTP/1.1 200 OK
 ```
 
