@@ -61,7 +61,7 @@ curl -X POST $HOST/v2/repository/index | jq
 curl -X POST -H "Content-Type: application/json" -d '{ "inputs": [ { "name": "input_name", "shape": [1], "datatype": "FP32", "data": [2.0] } ] }' ${HOST}/v2/models/lr/infer | jq .
 ```
 
-```bash
+```json
 {
   "model_name": "lr",
   "model_version": "1",
