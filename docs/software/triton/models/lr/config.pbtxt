@@ -1,0 +1,17 @@
+name: "lr"
+platform: "pytorch_libtorch"
+max_batch_size: 0  # Set to 0 for no batching, or a positive integer for max batch size
+input [
+  {
+    name: "input_name"
+    data_type: TYPE_FP32 # Or other data type
+    dims: [1] # Specify input dimensions
+  }
+]
+output [
+  {
+    name: "output_name"
+    data_type: TYPE_FP32 # Or other data type
+    dims: [1] # Specify output dimensions
+  }
+]
