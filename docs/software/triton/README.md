@@ -18,32 +18,45 @@ POD=$(oc get pod -l app=triton-server -o custom-columns=POD:.metadata.name --no-
 
 oc logs ${POD} | grep HTTP
 ```
-
+Example output
 ```bash
 I0521 18:49:00.663425 23 http_server.cc:4755] "Started HTTPService at 0.0.0.0:8000"
 ```
-
-- Copy the model repo into the Triton container storage.
-```bash
-POD=$(oc get pod -l app=triton-server -o custom-columns=POD:.metadata.name --no-headers)
-oc cp models/lr ${POD}:/models
-```
-- Restart Triton
-```bash
-oc delete pod ${POD}
-```
-- Get the route
-```bash
-HOST="https://"$(oc get route triton-server -o jsonpath='{.spec.host}')
-```
-
 - Check the health endpoint for an `HTTP/1.1 200 OK`
 
 ```bash
 curl -vk $HOST/v2/health/ready
 ```
+
+Example output
 ```console
 < HTTP/1.1 200 OK
+```
+
+- The following model repository is provided.
+
+```console
+models
+└── lr               (model name)
+    ├── 1            (version)
+    │   └── model.pt (PyTorch model file)
+    └── config.pbtxt (configuration)
+```
+
+- Copy this directory into the Triton container storage.
+```bash
+POD=$(oc get pod -l app=triton-server -o custom-columns=POD:.metadata.name --no-headers)
+oc cp models/lr ${POD}:/models
+```
+
+- Restart Triton
+```bash
+oc delete pod ${POD}
+```
+
+- Get the route
+```bash
+HOST="https://"$(oc get route triton-server -o jsonpath='{.spec.host}')
 ```
 
 - Model Status Endpoint checks
@@ -56,11 +69,11 @@ curl $HOST/v2/models/lr/config | jq
 ```bash
 curl -X POST $HOST/v2/repository/index | jq
 ```
-- Finally, make a linear regression inference with `curl`
+- Finally, make an inference with `curl`
 ```bash
 curl -X POST -H "Content-Type: application/json" -d '{ "inputs": [ { "name": "input_name", "shape": [1], "datatype": "FP32", "data": [2.0] } ] }' ${HOST}/v2/models/lr/infer | jq .
 ```
-
+Example output
 ```json
 {
   "model_name": "lr",
