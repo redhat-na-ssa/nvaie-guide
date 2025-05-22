@@ -22,13 +22,19 @@ Example output
 ```bash
 I0521 18:49:00.663425 23 http_server.cc:4755] "Started HTTPService at 0.0.0.0:8000"
 ```
+
+- Get the route
+```bash
+HOST="https://"$(oc get route triton-server -o jsonpath='{.spec.host}')
+```
+
 - Check the health endpoint for an `HTTP/1.1 200 OK`
 
 ```bash
 curl -vk $HOST/v2/health/ready
 ```
 
-Example output
+Look for the following message in the output
 ```console
 < HTTP/1.1 200 OK
 ```
@@ -52,11 +58,6 @@ oc cp models/lr ${POD}:/models
 - Restart Triton
 ```bash
 oc delete pod ${POD}
-```
-
-- Get the route
-```bash
-HOST="https://"$(oc get route triton-server -o jsonpath='{.spec.host}')
 ```
 
 - Model Status Endpoint checks
