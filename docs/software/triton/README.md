@@ -115,6 +115,12 @@ curl ${HOST}/v2/models/lr/versions/1/stats
 ```
 
 RHEL9
+
+Do this once.
 ```bash
-podman run --gpus all --shm-size=1g --ulimit memlock=-1 --ulimit stack=67108864 -p8000:8000 -p8001:8001 -p8002:8002 -v $(pwd)/models:/models:z nvcr.io/nvidia/tritonserver:25.04-py3 tritonserver --model-store=/models --strict-model-config=false --log-verbose=1
+sudo setsebool -P container_use_devices true
+```
+
+```bash
+podman run --gpus 0 --shm-size=1g --ulimit memlock=-1 --ulimit stack=67108864 -p8000:8000 -p8001:8001 -p8002:8002 -v $(pwd)/models:/models:z nvcr.io/nvidia/tritonserver:25.04-py3 tritonserver --model-store=/models --strict-model-config=false --log-verbose=1
 ```
