@@ -1,5 +1,8 @@
 # Time Slice
 
+> [!IMPORTANT]
+> Configure [GPU Operator](./gpu-operator.md).
+
 By default, only one workload can run on a single GPU. In some use cases though, you may want to share (or partition) the GPU to allow multiple workloads to run on the single GPU. 
 
 For example, you might want to run multiple copies of an inference service on a GPU to increase the throughput of requests. Note that this comes at the cost of higher latency per request, because multiple inference services are now sharing the same GPU.
@@ -83,4 +86,3 @@ oc get node --selector=nvidia.com/gpu.product=NVIDIA-L4-SHARED -o jsonpath-as-js
 ]
 ```
 
-Next: [MIG](gpu-mig.md)

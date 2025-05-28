@@ -269,4 +269,3 @@ Check logs
 oc logs cuda-vectoradd
 ```
 
-Next: [Time Slice](gpu-timeslice.md)
