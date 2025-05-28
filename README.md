@@ -24,7 +24,7 @@
   1. [CUDA](docs/software/cuda/cuda.md)
   1. [PyTorch](docs/software/pytorch/pytorch.md)
   1. [TensorFlow](docs/software/tensorflow/tensorflow.md)
-  1. TensorRT
+  1. [TensorRT](docs/software/tensorrt/README.md)
   1. [Triton Inference Server](docs/software/triton/README.md)
   1. AI-Dynamo
   1. [NeMo Framework](docs/software/nemo.md)
