@@ -28,6 +28,12 @@ I0521 18:49:00.663425 23 http_server.cc:4755] "Started HTTPService at 0.0.0.0:80
 HOST="https://"$(oc get route triton-server -o jsonpath='{.spec.host}')
 ```
 
+#### Using the API
+
+Triton supports the [kserve api](https://github.com/kserve/kserve/blob/master/docs/predict-api/v2/required_api.md) and
+[extentions](https://github.com/triton-inference-server/server/tree/main/docs/protocol)
+ for predictive models and the [OpenAI api](https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/client_guide/openai_readme.html) for LLMs.
+
 - Check the health endpoint for an `HTTP/1.1 200 OK`
 
 ```bash
@@ -67,9 +73,18 @@ curl $HOST/v2/models/lr | jq
 ```bash
 curl $HOST/v2/models/lr/config | jq
 ```
+
+- Model Status checks
+
 ```bash
 curl -X POST $HOST/v2/repository/index | jq
 ```
+
+Get the configuration for version 2 of the "lr" model.
+```bash
+curl ${HOST}/v2/models/lr/versions/2/config | jq
+```
+
 - Finally, make an inference with `curl`
 ```bash
 curl -X POST -H "Content-Type: application/json" -d '{ "inputs": [ { "name": "input_name", "shape": [1], "datatype": "FP32", "data": [2.0] } ] }' ${HOST}/v2/models/lr/infer | jq .
@@ -92,6 +107,11 @@ Example output
     }
   ]
 }
+```
+
+Get the stats
+```bash
+curl ${HOST}/v2/models/lr/versions/1/stats
 ```
 
 RHEL9
