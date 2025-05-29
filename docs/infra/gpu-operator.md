@@ -201,7 +201,7 @@ oc get ip -n nvidia-gpu-operator
 
 ```
 NAME            CSV                              APPROVAL    APPROVED
-install-xxxxx   gpu-operator-certified.v24.9.2   Automatic   true
+install-xxxxx   gpu-operator-certified.v25.3.0   Automatic   true
 ```
 
 > [!NOTE]
@@ -244,7 +244,7 @@ oc get pod -l openshift.driver-toolkit -n nvidia-gpu-operator
 
 ```text
 NAME                                                  READY   STATUS    RESTARTS   AGE
-nvidia-driver-daemonset-417.94.202503060903-0-xxxxx   2/2     Running   0             
+nvidia-driver-daemonset-417.94.202505062152-0-xxxxx   2/2     Running   0             
 ```
 
 ## Smoke Test
