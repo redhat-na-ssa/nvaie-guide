@@ -1,8 +1,6 @@
 # NIM (Nvidia Inference Microservices)
 
-> TODO: Preamble
-
-> TODO: Note L4 is not technically supported, see [supported GPUs](https://docs.nvidia.com/nim/large-language-models/latest/supported-models.html#gpus)
+View the [supportability page](https://docs.nvidia.com/nim/large-language-models/latest/supported-models.html#) to view supported GPUs and LLMs for NIM.
 
 > [!IMPORTANT]
 > Configure User Workload Monitoring and Nvidia API Key in [Prerequisites](../prereqs.md).\
@@ -30,7 +28,7 @@ The first step in NIM is to cache (i.e. download) the model.
 
 Before we can create our model cache, we have to specify which model profile we want to cache.
 
-> TODO: Add description of model profiles
+The model profile defines which model engine NIM can use for the Large Language Model we are deploying. View this [page](https://docs.nvidia.com/nim/large-language-models/latest/profiles.html#model-profiles) for more information on model profiles.
 
 We will use the [list-model-profiles](https://docs.nvidia.com/nim/large-language-models/latest/utilities.html#list-available-model-profiles) utility to determine which model profiles exist.
 
@@ -56,7 +54,7 @@ View the logs of the job:
 oc logs -n nim $(oc get pod -n nim -l job-name=nim-profile-job -o jsonpath='{.items[0].metadata.name}')
 ```
 
-> TODO: Explain the profiles we selected
+There are two primary profiles that are compatible: the vLLM engine (193...) and TensorRT (7cc...). We'll use the TensorRT engine in this example.
 
 Look at the NIM cache file:
 
