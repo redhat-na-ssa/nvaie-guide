@@ -41,7 +41,7 @@ oc get ip -n openshift-operators
 
 ```text
 NAME            CSV                             APPROVAL    APPROVED
-install-xxxxx   nim-operator-certified.v1.0.1   Automatic   true
+install-xxxxx   nim-operator-certified.v2.0.0   Automatic   true
 ```
 
 > [!NOTE]

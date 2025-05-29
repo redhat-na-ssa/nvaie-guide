@@ -33,7 +33,7 @@ Edit `scratch/gpu-machineset.yaml`
   - [ ] Set `.spec.replicas` to `1`
   - [ ] Set `.spec.selector.matchLabels["machine.openshift.io/cluster-api-machineset"]` to `gpu-machineset`
   - [ ] Set `.spec.template.metadata.labels["machine.openshift.io/cluster-api-machineset"]` to `gpu-machineset`
-  - [ ] Set `.spec.template.spec.providerSpec.value.instanceType` to `g6.4xlarge`
+  - [ ] Set `.spec.template.spec.providerSpec.value.instanceType` to `g5.4xlarge`
   
 Finally, further edit `scratch/gpu-machineset.yaml` to add a taint, so that non-GPU specific workloads do not run on those machines. 
 
