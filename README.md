@@ -7,7 +7,21 @@
 
 ## About NVAIE
 
-> TODO
+Nvidia AI Enterprise (NVAIE) is a collection of infrastructure and software tools provided by Nvidia to build a technical solution that can run predictive or generative AI inferencing.
+
+NVAIE is licensed per GPU, includes Business Standard Support, and is purchased as an annual, multi-year, or hourly subscription (via Cloud Marketplaces).
+
+In some cases, NVAIE is included, e.g NVAIE is included with the purchase of Nvidia DGX Systems.
+
+To read the NVAIE components, go [here](https://docs.nvidia.com/ai-enterprise/release-6/6.0/getting-started/quick-start-guide.html#installing-nvidia-ai-enterprise-software-components).
+
+To read the NVAIE Lifecycle Policy, go [here](https://docs.nvidia.com/ai-enterprise/lifecycle/latest/lifecycle-policy.html).
+
+## About This Guide
+
+This guide is intended for Red Hat Solution Architects who want a hands-on tour of NVAIE technical components running on Red Hat Platforms (RHEL and OpenShift).
+
+Please complete the preqrequisites first. After completing the preqrequisites, you can jump straight into sections you are interested in.
 
 ## Guide
 
