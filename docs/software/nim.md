@@ -144,6 +144,14 @@ One of the metrics is `gpu_cache_usage_perc`. We'll use that in the autoscaling 
 
 ### Autoscaling
 
+> TODO: Try PrometheusRule (Or Service Monitor)
+
+Scale the machineset to allow NIM to autoscale to 2 replicas:
+
+```bash
+oc scale machineset gpu-machineset -n openshift-machine-api --replicas=2
+```
+
 NIM Services provide a specification to enable horizontal pod autoscaling (HPA). The Nvidia [documentation](https://docs.nvidia.com/nim-operator/latest/service.html#prerequistes-hpa) uses a Prometheus Adapter to create custom metrics for NIM HPA.
 
 However, OCP removed the Prometheus Adapter starting in [v4.8](https://docs.openshift.com/container-platform/4.8/release_notes/ocp-4-8-release-notes.html#ocp-4-8-hpa-prometheus).
@@ -267,7 +275,9 @@ NAME                      REFERENCE                            TARGETS   MINPODS
 meta-llama3-8b-instruct   Deployment/meta-llama3-8b-instruct   18m/10m   1         2         2          
 ```
 
-> TODO: Verify if larger VM size can run two copies of the inference service
+Note you may have to wait ~10 minutes before the next step if the GPU Operator is still installing the GPU drivers on your second GPU machine.
+
+Inspect the second replica of the NIM service:
 
 ```bash
 oc get pods -n nim -l app=meta-llama3-8b-instruct
@@ -276,7 +286,7 @@ oc get pods -n nim -l app=meta-llama3-8b-instruct
 ```text
 NAME                                       READY   STATUS             RESTARTS        AGE
 meta-llama3-8b-instruct-xxxxxxxxxx-xxxxx   1/1
-meta-llama3-8b-instruct-xxxxxxxxxx-xxxxx   0/1     
+meta-llama3-8b-instruct-xxxxxxxxxx-xxxxx   1/1     
 ```
 
 ### Cleanup
@@ -362,5 +372,11 @@ Delete the NIM pipeline:
 
 ```bash
 oc delete -n nim nimpipeline pipeline
+```
+
+Scale the machineset back down:
+
+```bash
+oc scale machineset gpu-machineset -n openshift-machine-api --replicas=1
 ```
 
