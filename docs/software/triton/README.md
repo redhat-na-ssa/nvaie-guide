@@ -68,26 +68,26 @@ oc delete pod ${POD}
 
 - Model Status Endpoint checks
 ```bash
-curl $HOST/v2/models/lr | jq
+curl -s $HOST/v2/models/lr | jq
 ```
 ```bash
-curl $HOST/v2/models/lr/config | jq
+curl -s $HOST/v2/models/lr/config | jq
 ```
 
 - Model Status checks
 
 ```bash
-curl -X POST $HOST/v2/repository/index | jq
+curl -s -X POST $HOST/v2/repository/index | jq
 ```
 
 Get the configuration for version 2 of the "lr" model.
 ```bash
-curl ${HOST}/v2/models/lr/versions/2/config | jq
+curl -s ${HOST}/v2/models/lr/versions/2/config | jq
 ```
 
 - Finally, make an inference with `curl`
 ```bash
-curl -X POST -H "Content-Type: application/json" -d '{ "inputs": [ { "name": "input_name", "shape": [1], "datatype": "FP32", "data": [2.0] } ] }' ${HOST}/v2/models/lr/infer | jq .
+curl -s -X POST -H "Content-Type: application/json" -d '{ "inputs": [ { "name": "input_name", "shape": [1], "datatype": "FP32", "data": [2.0] } ] }' ${HOST}/v2/models/lr/infer | jq .
 ```
 Example output
 ```json
@@ -112,6 +112,69 @@ Example output
 Get the stats
 ```bash
 curl ${HOST}/v2/models/lr/versions/1/stats
+```
+
+- Train and copy version 2 of the model
+
+- Copy it to the Triton pod and watch the logs. Version 2 of the model
+should get loaded.
+
+Example output:
+```console
+I0602 21:22:32.942157 23 server.cc:376] "Polling model repository"
+I0602 21:22:32.942499 23 model_config_utils.cc:753] "Server side auto-completed config: "
+name: "lr"
+platform: "pytorch_libtorch"
+version_policy {
+  all {
+  }
+}
+input {
+  name: "input_name"
+  data_type: TYPE_FP32
+  dims: 1
+}
+output {
+  name: "output_name"
+  data_type: TYPE_FP32
+  dims: 1
+}
+default_model_filename: "model.pt"
+backend: "pytorch"
+```
+Example log output
+```console
+...
+...
+I0602 21:22:32.942582 23 model_lifecycle.cc:473] "loading: lr:1"
+I0602 21:22:32.942633 23 model_lifecycle.cc:473] "loading: lr:2"
+I0602 21:22:32.959919 23 model_lifecycle.cc:849] "successfully loaded 'lr'"
+```
+
+- Inference version 2
+```bash
+curl -s -X POST -H "Content-Type: application/json" -d '{ "inputs": [ { "name": "input_name", "shape": [1], "datatype": "FP32", "data": [3.0] } ] }' ${HOST}/v2/models/lr/versions/2/infer | jq .
+```
+
+Example output
+
+```console
+{
+  "model_name": "lr",
+  "model_version": "2",
+  "outputs": [
+    {
+      "name": "output_name",
+      "datatype": "FP32",
+      "shape": [
+        1
+      ],
+      "data": [
+        9.214284896850586
+      ]
+    }
+  ]
+}
 ```
 
 RHEL9
