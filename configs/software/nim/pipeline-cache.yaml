@@ -18,9 +18,9 @@ spec:
   storage:
     pvc:
       create: true
-      storageClass: gp3-csi
+      storageClass: rook-cephfs
       size: "20Gi"
-      volumeAccessMode: ReadWriteOnce
+      volumeAccessMode: ReadWriteMany
   resources: {}
 ---
 apiVersion: apps.nvidia.com/v1alpha1
@@ -43,7 +43,7 @@ spec:
   storage:
     pvc:
       create: true
-      storageClass: gp3-csi
+      storageClass: rook-cephfs
       size: "20Gi"
-      volumeAccessMode: ReadWriteOnce
+      volumeAccessMode: ReadWriteMany
   resources: {}

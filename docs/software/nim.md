@@ -64,10 +64,10 @@ cat configs/software/nim/meta-cache.yaml
 
 Notice the following:
 
-- [ ] `volumeAccessMode` is set to `ReadWriteOnce`
+- [ ] `volumeAccessMode` is set to `ReadWriteMany`
 - [ ] `model.profiles` includes the profiles `7cc...`
 
-While Nvidia recommends RWX volume access mode, we will use RWO for demonstration purposes. Change this to `ReadWriteMany` if you have an appropriate storage class that supports RWX.
+The RWX volume access mode allows us to create a single NIM cache holding the model (a PVC) that can be mounted on two separate nodes/machines as the NIMService autoscales up.
 
 Deploy a NIM cache for Meta Llama-3.1-8b-Instruct:
 
@@ -348,6 +348,8 @@ meta-llama3-8b-instruct     Ready    meta-llama3-8b-instruct-pvc
 nv-embedqa-e5-v5            Ready    nv-embedqa-e5-v5-pvc            
 nv-rerankqa-mistral-4b-v3   Ready    nv-rerankqa-mistral-4b-v3-pvc 
 ```
+
+Note you may have to wait ~10 minutes before the next step if the GPU Operator is still installing the GPU drivers on your second GPU machine.
 
 Deploy the models together as a `NIMPipeline`:
 
