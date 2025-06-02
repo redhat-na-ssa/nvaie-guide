@@ -1,8 +1,5 @@
 # NIM (Nvidia Inference Microservices) Operator
 
-> TODO: Add preamble\
-> TODO: Discuss [supported models](https://docs.nvidia.com/nim/large-language-models/latest/supported-models.html)
-
 ## Create NIM Operator
 
 List the available operators for installation searching for `nim-operator`:

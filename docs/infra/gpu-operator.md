@@ -1,12 +1,8 @@
 # GPU Operator
 
-> TODO: Add preamble
-
-> TODO: Add note about [support](https://access.redhat.com/solutions/5174941)
-
 ## Create GPU Machines
 
-Let's add machines with GPUs to your cluster. You will create a [g6 instance](https://aws.amazon.com/ec2/instance-types/g6/) which feature Nvidia L4 GPUs.
+Let's add machines with GPUs to your cluster. You will create a [g5 instance](https://aws.amazon.com/ec2/instance-types/g5/) which feature Nvidia A10Gs.
 
 View the MachineSets in your cluster:
 
@@ -76,10 +72,6 @@ gpu-machineset                          1         1
 ```
 
 ## Install Node Feature Discovery Operator
-
-> TODO: Add preamble
-
-> Not strictly required for GPU Operator to work, but necessary to obtain support from Nvidia
 
 The NFD Operator uses vendor PCI IDs to identify hardware in a node.
 
@@ -160,8 +152,6 @@ Roles:              worker
 ```
 
 ## Install the NVIDIA GPU Operator
-
-> TODO: Add preamble
 
 List the available operators for installation searching for GPU:
 
