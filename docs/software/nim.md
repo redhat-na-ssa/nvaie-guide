@@ -144,8 +144,6 @@ One of the metrics is `gpu_cache_usage_perc`. We'll use that in the autoscaling 
 
 ### Autoscaling
 
-> TODO: Try PrometheusRule (Or Service Monitor)
-
 Scale the machineset to allow NIM to autoscale to 2 replicas:
 
 ```bash
