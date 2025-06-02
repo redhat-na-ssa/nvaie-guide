@@ -303,6 +303,12 @@ Delete NIM service:
 oc -n nim delete nimservice meta-llama3-8b-instruct
 ```
 
+Scale the machineset down:
+
+```bash
+oc scale machineset gpu-machineset -n openshift-machine-api --replicas=1
+```
+
 ## NIM Pipelines
 
 If you have multiple NIM services, you can deploy multiple NIM services and manage each individually as a `NIMService`.
@@ -310,6 +316,12 @@ If you have multiple NIM services, you can deploy multiple NIM services and mana
 Alternatively, you can *group* NIM services together as one resource called a `NIMPipeline`.
 
 Let's demonstrate this with the [llama-3.2-nv-embedqa-1b-v2](https://build.nvidia.com/nvidia/llama-3_2-nv-embedqa-1b-v2) and [llama-3.2-nv-rerankqa-1b-v2](https://build.nvidia.com/nvidia/llama-3_2-nv-rerankqa-1b-v2) models.
+
+Scale the machineset to allow NIM to autoscale to 2 replicas:
+
+```bash
+oc scale machineset gpu-machineset -n openshift-machine-api --replicas=2
+```
 
 Create the caches for both models. We'll skip identifying a profile and simply download `-all` profiles.
 
@@ -374,7 +386,7 @@ Delete the NIM pipeline:
 oc delete -n nim nimpipeline pipeline
 ```
 
-Scale the machineset back down:
+Scale the machineset down:
 
 ```bash
 oc scale machineset gpu-machineset -n openshift-machine-api --replicas=1
