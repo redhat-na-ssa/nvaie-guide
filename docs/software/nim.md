@@ -1,8 +1,6 @@
 # NIM (Nvidia Inference Microservices)
 
-> TODO: Preamble
-
-> TODO: Note L4 is not technically supported, see [supported GPUs](https://docs.nvidia.com/nim/large-language-models/latest/supported-models.html#gpus)
+View the [supportability page](https://docs.nvidia.com/nim/large-language-models/latest/supported-models.html#) to view supported GPUs and LLMs for NIM.
 
 > [!IMPORTANT]
 > Configure User Workload Monitoring and Nvidia API Key in [Prerequisites](../prereqs.md).\
@@ -30,7 +28,7 @@ The first step in NIM is to cache (i.e. download) the model.
 
 Before we can create our model cache, we have to specify which model profile we want to cache.
 
-> TODO: Add description of model profiles
+The model profile defines which model engine NIM can use for the Large Language Model we are deploying. View this [page](https://docs.nvidia.com/nim/large-language-models/latest/profiles.html#model-profiles) for more information on model profiles.
 
 We will use the [list-model-profiles](https://docs.nvidia.com/nim/large-language-models/latest/utilities.html#list-available-model-profiles) utility to determine which model profiles exist.
 
@@ -56,7 +54,7 @@ View the logs of the job:
 oc logs -n nim $(oc get pod -n nim -l job-name=nim-profile-job -o jsonpath='{.items[0].metadata.name}')
 ```
 
-> TODO: Explain the profiles we selected
+There are two primary profiles that are compatible: the vLLM engine (193...) and TensorRT (7cc...). We'll use the TensorRT engine in this example.
 
 Look at the NIM cache file:
 
@@ -66,10 +64,10 @@ cat configs/software/nim/meta-cache.yaml
 
 Notice the following:
 
-- [ ] `volumeAccessMode` is set to `ReadWriteOnce`
+- [ ] `volumeAccessMode` is set to `ReadWriteMany`
 - [ ] `model.profiles` includes the profiles `7cc...`
 
-While Nvidia recommends RWX volume access mode, we will use RWO for demonstration purposes. Change this to `ReadWriteMany` if you have an appropriate storage class that supports RWX.
+The RWX volume access mode allows us to create a single NIM cache holding the model (a PVC) that can be mounted on two separate nodes/machines as the NIMService autoscales up.
 
 Deploy a NIM cache for Meta Llama-3.1-8b-Instruct:
 
@@ -145,6 +143,12 @@ curl $NIM_META_URL/v1/metrics
 One of the metrics is `gpu_cache_usage_perc`. We'll use that in the autoscaling configuration.
 
 ### Autoscaling
+
+Scale the machineset to allow NIM to autoscale to 2 replicas:
+
+```bash
+oc scale machineset gpu-machineset -n openshift-machine-api --replicas=2
+```
 
 NIM Services provide a specification to enable horizontal pod autoscaling (HPA). The Nvidia [documentation](https://docs.nvidia.com/nim-operator/latest/service.html#prerequistes-hpa) uses a Prometheus Adapter to create custom metrics for NIM HPA.
 
@@ -269,7 +273,9 @@ NAME                      REFERENCE                            TARGETS   MINPODS
 meta-llama3-8b-instruct   Deployment/meta-llama3-8b-instruct   18m/10m   1         2         2          
 ```
 
-> TODO: Verify if larger VM size can run two copies of the inference service
+Note you may have to wait ~10 minutes before the next step if the GPU Operator is still installing the GPU drivers on your second GPU machine.
+
+Inspect the second replica of the NIM service:
 
 ```bash
 oc get pods -n nim -l app=meta-llama3-8b-instruct
@@ -278,7 +284,7 @@ oc get pods -n nim -l app=meta-llama3-8b-instruct
 ```text
 NAME                                       READY   STATUS             RESTARTS        AGE
 meta-llama3-8b-instruct-xxxxxxxxxx-xxxxx   1/1
-meta-llama3-8b-instruct-xxxxxxxxxx-xxxxx   0/1     
+meta-llama3-8b-instruct-xxxxxxxxxx-xxxxx   1/1     
 ```
 
 ### Cleanup
@@ -295,6 +301,12 @@ Delete NIM service:
 oc -n nim delete nimservice meta-llama3-8b-instruct
 ```
 
+Scale the machineset down:
+
+```bash
+oc scale machineset gpu-machineset -n openshift-machine-api --replicas=1
+```
+
 ## NIM Pipelines
 
 If you have multiple NIM services, you can deploy multiple NIM services and manage each individually as a `NIMService`.
@@ -302,6 +314,12 @@ If you have multiple NIM services, you can deploy multiple NIM services and mana
 Alternatively, you can *group* NIM services together as one resource called a `NIMPipeline`.
 
 Let's demonstrate this with the [llama-3.2-nv-embedqa-1b-v2](https://build.nvidia.com/nvidia/llama-3_2-nv-embedqa-1b-v2) and [llama-3.2-nv-rerankqa-1b-v2](https://build.nvidia.com/nvidia/llama-3_2-nv-rerankqa-1b-v2) models.
+
+Scale the machineset to allow NIM to autoscale to 2 replicas:
+
+```bash
+oc scale machineset gpu-machineset -n openshift-machine-api --replicas=2
+```
 
 Create the caches for both models. We'll skip identifying a profile and simply download `-all` profiles.
 
@@ -328,6 +346,8 @@ meta-llama3-8b-instruct     Ready    meta-llama3-8b-instruct-pvc
 nv-embedqa-e5-v5            Ready    nv-embedqa-e5-v5-pvc            
 nv-rerankqa-mistral-4b-v3   Ready    nv-rerankqa-mistral-4b-v3-pvc 
 ```
+
+Note you may have to wait ~10 minutes before the next step if the GPU Operator is still installing the GPU drivers on your second GPU machine.
 
 Deploy the models together as a `NIMPipeline`:
 
@@ -364,5 +384,11 @@ Delete the NIM pipeline:
 
 ```bash
 oc delete -n nim nimpipeline pipeline
+```
+
+Scale the machineset down:
+
+```bash
+oc scale machineset gpu-machineset -n openshift-machine-api --replicas=1
 ```
 

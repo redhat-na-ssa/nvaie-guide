@@ -33,7 +33,7 @@ Edit `scratch/gpu-machineset.yaml`
   - [ ] Set `.spec.replicas` to `1`
   - [ ] Set `.spec.selector.matchLabels["machine.openshift.io/cluster-api-machineset"]` to `gpu-machineset`
   - [ ] Set `.spec.template.metadata.labels["machine.openshift.io/cluster-api-machineset"]` to `gpu-machineset`
-  - [ ] Set `.spec.template.spec.providerSpec.value.instanceType` to `g6.4xlarge`
+  - [ ] Set `.spec.template.spec.providerSpec.value.instanceType` to `g5.4xlarge`
   
 Finally, further edit `scratch/gpu-machineset.yaml` to add a taint, so that non-GPU specific workloads do not run on those machines. 
 
@@ -201,7 +201,7 @@ oc get ip -n nvidia-gpu-operator
 
 ```
 NAME            CSV                              APPROVAL    APPROVED
-install-xxxxx   gpu-operator-certified.v24.9.2   Automatic   true
+install-xxxxx   gpu-operator-certified.v25.3.0   Automatic   true
 ```
 
 > [!NOTE]
@@ -244,7 +244,7 @@ oc get pod -l openshift.driver-toolkit -n nvidia-gpu-operator
 
 ```text
 NAME                                                  READY   STATUS    RESTARTS   AGE
-nvidia-driver-daemonset-417.94.202503060903-0-xxxxx   2/2     Running   0             
+nvidia-driver-daemonset-417.94.202505062152-0-xxxxx   2/2     Running   0             
 ```
 
 ## Smoke Test

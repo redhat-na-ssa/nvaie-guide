@@ -27,6 +27,12 @@ oc scale machineset $MACHINESET -n openshift-machine-api --replicas=1
 
 ### Storage
 
+Create Rook-Ceph storage (we will use this for RWX volumes in NIM):
+
+```bash
+oc apply -k configs/prereqs/rook
+```
+
 > TODO: Add RWX
 
 ### Monitoring
@@ -34,7 +40,7 @@ oc scale machineset $MACHINESET -n openshift-machine-api --replicas=1
 Enable user workload monitoring:
 
 ```bash
-oc create -f configs/cluster-monitoring-config.yaml
+oc create -f configs/prereqs/cluster-monitoring-config.yaml
 ```
 
 ## Nvidia
