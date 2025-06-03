@@ -55,6 +55,7 @@ if __name__ == "__main__":
 r = None
 try:
     r = make_prediction(2.5, host)
+    logging.debug(f'{host = }')
     logging.debug(f'REST inference response = {r.status_code}')
     logging.info(f'REST inference response content = {r.content.decode()}')
     p = ast.literal_eval(r.content.decode())
