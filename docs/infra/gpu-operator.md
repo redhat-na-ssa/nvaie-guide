@@ -245,7 +245,7 @@ Use the [nvidia-smi](https://docs.nvidia.com/deploy/nvidia-smi/) program to test
 oc exec -n nvidia-gpu-operator $(oc get pod -n nvidia-gpu-operator -l openshift.driver-toolkit -ojsonpath='{.items[0].metadata.name}') -- nvidia-smi
 ```
 
-You should see the `NVIDIA L4` GPU you provisioned.
+You should see the `NVIDIA A10G` GPU you provisioned.
 
 Run CUDA VectorAdd:
 

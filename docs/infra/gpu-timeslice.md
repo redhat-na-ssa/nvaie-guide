@@ -79,7 +79,7 @@ oc get node --selector=nvidia.com/gpu.product=NVIDIA-A10G-SHARED -o jsonpath-as-
         "ephemeral-storage": "104266732Ki",
         "hugepages-1Gi": "0",
         "hugepages-2Mi": "0",
-        "memory": "63402072Ki",
+        "memory": "65138780Ki",
         "nvidia.com/gpu": "4",
         "pods": "250"
     }
