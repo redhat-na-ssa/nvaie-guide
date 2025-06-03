@@ -21,7 +21,7 @@ To read the NVAIE Lifecycle Policy, go [here](https://docs.nvidia.com/ai-enterpr
 
 This guide is intended for Red Hat Solution Architects who want a hands-on tour of NVAIE technical components running on Red Hat Platforms (RHEL and OpenShift).
 
-Please complete the preqrequisites first. After completing the preqrequisites, you can jump straight into sections you are interested in.
+Please complete the prerequisites first. After completing the prerequisites, you can jump straight into sections you are interested in.
 
 ## Guide
 
