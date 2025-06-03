@@ -331,7 +331,7 @@ oc rollout status deploy/whisper-tiny -n sandbox --timeout=600s
 It is **really important** to note that the requested GPU memory does not decrement the allocatable capacity on the node:
 
 ```bash
-oc get node --selector=nvidia.com/gpu.product=NVIDIA-L4-SHARED -o jsonpath-as-json='{.items[0].status.allocatable}'
+oc get node --selector=nvidia.com/gpu.product=NVIDIA-A10G-SHARED -o jsonpath-as-json='{.items[0].status.allocatable}'
 ```
 
 > The node shows full GPU capacity is available even though we deployed a pod that requested half of the GPU's memory

@@ -5,7 +5,7 @@ metadata:
   name: device-plugin-config
   namespace: nvidia-gpu-operator
 data:
-  NVIDIA-L4: |-
+  NVIDIA-A10G: |-
     version: v1
     sharing:
       timeSlicing:

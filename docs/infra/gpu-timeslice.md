@@ -19,7 +19,7 @@ metadata:
   name: device-plugin-config
   namespace: nvidia-gpu-operator
 data:
-  NVIDIA-L4: |-
+  NVIDIA-A10G: |-
     version: v1
     sharing:
       timeSlicing:
@@ -52,8 +52,8 @@ Apply the configuration to your existing GPU machine:
 
 ```bash
 oc label --overwrite node \
-    --selector=nvidia.com/gpu.product=NVIDIA-L4 \
-    nvidia.com/device-plugin.config=NVIDIA-L4
+    --selector=nvidia.com/gpu.product=NVIDIA-A10G \
+    nvidia.com/device-plugin.config=NVIDIA-A10G
 ```
 
 This will append a suffix `-SHARED` to the product label name.
@@ -63,13 +63,13 @@ Apply the configuration to your MachineSet so future GPU machines also get this 
 ```bash
 oc patch machineset gpu-machineset \
     -n openshift-machine-api --type merge \
-    --patch '{"spec": {"template": {"spec": {"metadata": {"labels": {"nvidia.com/device-plugin.config": "NVIDIA-L4"}}}}}}'
+    --patch '{"spec": {"template": {"spec": {"metadata": {"labels": {"nvidia.com/device-plugin.config": "NVIDIA-A10G"}}}}}}'
 ```
 
 Verify that time slicing was configured:
 
 ```bash
-oc get node --selector=nvidia.com/gpu.product=NVIDIA-L4-SHARED -o jsonpath-as-json='{.items[0].status.capacity}'
+oc get node --selector=nvidia.com/gpu.product=NVIDIA-A10G-SHARED -o jsonpath-as-json='{.items[0].status.capacity}'
 ```
 
 ```text

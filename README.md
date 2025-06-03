@@ -1,10 +1,5 @@
 # The Nvidia AI Enterprise Guide to the Galaxy
 
-**Acronyms**:
-
-- NVAIE = Nvidia AI Enterprise
-- RHOCP = Red Hat OpenShift Container Platform
-
 ## About NVAIE
 
 Nvidia AI Enterprise (NVAIE) is a collection of infrastructure and software tools provided by Nvidia to build a technical solution that can run predictive or generative AI inferencing.
