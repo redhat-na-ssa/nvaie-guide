@@ -339,11 +339,11 @@ oc get node --selector=nvidia.com/gpu.product=NVIDIA-A10G-SHARED -o jsonpath-as-
 ```text
 [
     {
-        "cpu": "3500m",
-        "ephemeral-storage": "95018478229",
+        "cpu": "16",
+        "ephemeral-storage": "104266732Ki",
         "hugepages-1Gi": "0",
         "hugepages-2Mi": "0",
-        "memory": "14589080Ki",
+        "memory": "65138780Ki",
         "nvidia.com/gpu": "4",
         "pods": "250"
     }
@@ -359,14 +359,14 @@ oc exec $(oc get pod -n sandbox -l runai/queue=test -ojsonpath='{.items[0].metad
 ```text
 ---
 |=========================================+========================+======================|
-|   0  NVIDIA L4                      On  |   00000000:31:00.0 Off |                    0 |
-| N/A   38C    P0             26W /   72W |   17143MiB /  23034MiB |      0%      Default |
+|   0  NVIDIA A10G                    On  |   00000000:00:1E.0 Off |                    0 |
+|  0%   43C    P0             94W /  300W |   17347MiB /  23028MiB |      0%      Default |
 |                                         |                        |                  N/A |
 +-----------------------------------------+------------------------+----------------------+
 ---
 ```
 
-The NVIDIA L4 has 24GB of memory and the deployment currently uses ~75% of the GPU's total memory, even though we asked the scheduler to request `0.5` of GPU memory.
+The NVIDIA A10G has 24GB of memory and the deployment currently uses ~75% of the GPU's total memory, even though we asked the scheduler to request `0.5` of GPU memory.
 
 ### Cleanup
 
