@@ -3,7 +3,7 @@
 > [!IMPORTANT]
 > Configure [GPU Operator](./gpu-operator.md).
 
-Another way to share a GPU is Multi-Instance GPU or [MIG](https://www.nvidia.com/en-us/technologies/multi-instance-gpu/). MIG can partition a GPU up to seven instances starting with the Ampere generation or later. Unlike time slicing, each GPU instance has dedicated hardware and fault isolation.
+Another way to share a GPU is Multi-Instance GPU ([MIG](https://www.nvidia.com/en-us/technologies/multi-instance-gpu/)). MIG can partition a GPU up to seven instances starting with the Ampere generation or later. Unlike time slicing, each GPU instance has dedicated hardware and fault isolation.
 
 ## GPU MIG Machines
 
