@@ -33,8 +33,6 @@ Create Rook-Ceph storage (we will use this for RWX volumes in NIM):
 oc apply -k configs/prereqs/rook
 ```
 
-> TODO: Add RWX
-
 ### Monitoring
 
 Enable user workload monitoring:
