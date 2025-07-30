@@ -8,29 +8,37 @@ CUDA is a foundational API that is closest to the GPU hardware.
 Higher level AI/ML frameworks such as PyTorch and Tensorflow
 are built on top of CUDA to achieve acceleration on NVIDIA GPU platforms.
 
-The CUDA compiler is included on NVIDIA's [CUDA](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/cuda/tags), Pytorch and Tensorflow containers.
-
 ##### Compiling and running a few simple code examples.
 
-```bash
-cd docs/software/cuda
-TAG=12.9.0-cudnn-devel-ubi9
-IMAGE=nvcr.io/nvidia/cuda:${TAG}
-podman run --rm -it --name cuda -v $(pwd)/:/cuda:z --security-opt=label=disable --device nvidia.com/gpu=all ${IMAGE} -- bash
-```
+A mini-workshop to learn about compiling and running simple CUDA programs on RHEL.
+
+- Order the Base Red Hat AI Inference Server (RHAIIS) from the demo catalog.
+- Perform the following to prepare the system to compile and run CUDA programs.
+  - `export PATH=$PATH:/usr/local/cuda/bin`
+  - Even better, modify your `~/.bashrc`
+
+- Clone https://github.com/harrism/nsys_easy
+	- Move the `nsys_easy` script into a directory contained in $PATH
+	- `mkdir $HOME/.local/bin` is a good option
+- Compiling and running programs
+
+`cd src`
+
+`nvcc add_cuda.cu -o add_cuda`
+
+`add_cuda`
+
+- Run the profiler.
 
 ```bash
-cd /cuda
-nvcc vector_add.cu -o vector_add
-nvcc vector_add.cu -o vector_add_thread
-nvcc vector_add_grid.cu -o vector_add_grid
+nsys_easy <executable>
 ```
 
-Observe the performance of each program.
+Containers core dump cuda programs. I need to investigate CUDA revisions
+between the container and host.
+
 ```bash
-./vector_add
-./vector_add_thread
-./vector_add_grid
+podman run -it --rm -v $(pwd):/scratch:z nvcr.io/nvidia/cuda-dl-base:25.06-cuda12.9-devel-ubuntu24.04 bash
 ```
 
 ###### References
@@ -38,4 +46,8 @@ Observe the performance of each program.
 [CUDA overview from SC2011](https://www.nvidia.com/docs/io/116711/sc11-cuda-c-basics.pdf)
 
 [CUDA Tutorial](https://cuda-tutorial.readthedocs.io/en/latest/tutorials/tutorial02/)
+
+https://developer.nvidia.com/blog/even-easier-introduction-cuda/
+
+https://github.com/harrism/mini-nbody.git
 
