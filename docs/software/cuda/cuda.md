@@ -1,42 +1,95 @@
-# CUDA Mini-Workshop
-
-## Overview
-
-CUDA is a platform and programming model for NVIDIA CUDA-enabled GPUs. The platform exposes GPUs for general purpose computing. CUDA provides C/C++ language extension and APIs for programming and managing GPUs.
-
-CUDA is a foundational API that is closest to the GPU hardware. 
-Higher level AI/ML frameworks such as PyTorch and Tensorflow
-are built on top of CUDA to achieve acceleration on NVIDIA GPU platforms.
-
-##### Compiling and running a few simple code examples.
-
+# Hands-On CUDA Mini-Workshop
 A mini-workshop to learn about compiling and running simple CUDA programs on RHEL.
+
+## Work in Progress
+
+### Overview
+
+CUDA is a platform and programming model that exposes NVIDIA GPUs for general purpose computing. 
+It provides a C/C++ language extension and APIs for programming and managing GPU resources.
+
+CUDA is a foundational API that is closest to the GPU hardware and is often used in HPC use cases.
+Higher level AI/ML frameworks such as PyTorch and Tensorflow
+are built on top of CUDA to achieve acceleration of AI/ML training and inferencing on NVIDIA GPU platforms.
+
+##### System setup
 
 - Order the Base Red Hat AI Inference Server (RHAIIS) from the demo catalog.
 - Perform the following to prepare the system to compile and run CUDA programs.
   - `export PATH=$PATH:/usr/local/cuda/bin`
   - Even better, modify your `~/.bashrc`
 
-- Install the `ImageMagick-c++-devel` and `bc` rpms.
+```console
+mkdir ~/.bashrc.d
+```
+- Add the following to your `$HOME/.bashrc.d/local` file.
 
-`sudo yum install ImageMagick-c++-devel bc -y`
+```console
+# Add CUDA to the PATH
+if ! [[ "$PATH" =~ "/usr/local/cuda/bin" ]]
+then
+    PATH="/usr/local/cuda/bin:$PATH"
+fi
+export PATH
+```
+
+Test
+
+```bash
+source $HOME/.bashrc.d/local
+echo $PATH
+```
+
+- Install a few needed rpms.
+
+`sudo yum install ImageMagick-c++-devel install nsight-systems-2024.6.2 bc -y`
 
 - Clone https://github.com/harrism/nsys_easy
 	- Move the `nsys_easy` script into a directory contained in $PATH
 	- `mkdir $HOME/.local/bin` is a good option
-- Compiling and running programs
+
+#### Exercises to complete.
 
 `cd src`
 
-`nvcc add_cuda.cu -o add_cuda`
-
-`add_cuda`
-
-- Run the profiler.
+1. Run a simple vector add program to confirm the GPU can run CUDA programs.
 
 ```bash
-nsys_easy <executable>
+make
+./02-add_cuda_block.cu
 ```
+
+2. Examine the device properties. How much memory does your GPU have?
+
+`./01mycudadevice`
+
+- Modify `./01mycudadevice.cu` to print out the maximum number of threads per multiproccesor.
+See the [CUDA API docs for the correct property to retrieve.](https://docs.nvidia.com/cuda/cuda-runtime-api/structcudaDeviceProp.html#structcudaDeviceProp) 
+
+- What is the theoretical maximum number of simultaneous threads that can execute on your device?
+
+3. Complete the image processing example program.
+
+- Begin by opening `03-rgb2gray.cu`
+  - Complete TODO #1 by merging `snippets/convert.cu` into `03-rgb2gray.cu`
+  - Run a `make` to confirm that there are no typos.
+  - Complete TODO #2 by merging `snippets/call_kernel.cu` into `03-rgb2gray.cu`
+  - Run a `make` to confirm that there are no typos.
+  - If everything goes well the program should create a `gray.png` image.
+
+- Run the profiler and take note on the execution time of the `CUDA_KERNEL`
+
+```bash
+nsys_easy ./03-rgb2gray
+```
+
+- Now experiment with different thread sizes and observe/compare the execution times.
+
+```bash
+nsys_easy ./03-rgb2gray -t 8
+```
+
+#### End of Workshop
 
 Containers may core dump cuda programs if the cuda versions between the container and host are not 
 the same.
