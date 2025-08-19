@@ -1,4 +1,4 @@
-# CUDA
+# CUDA Mini-Workshop
 
 ## Overview
 
@@ -17,6 +17,10 @@ A mini-workshop to learn about compiling and running simple CUDA programs on RHE
   - `export PATH=$PATH:/usr/local/cuda/bin`
   - Even better, modify your `~/.bashrc`
 
+- Install the `ImageMagick-c++-devel` rpm
+
+`sudo yum install ImageMagick-c++-devel -y`
+
 - Clone https://github.com/harrism/nsys_easy
 	- Move the `nsys_easy` script into a directory contained in $PATH
 	- `mkdir $HOME/.local/bin` is a good option
@@ -34,8 +38,8 @@ A mini-workshop to learn about compiling and running simple CUDA programs on RHE
 nsys_easy <executable>
 ```
 
-Containers core dump cuda programs. I need to investigate CUDA revisions
-between the container and host.
+Containers may core dump cuda programs if the cuda versions between the container and host are not 
+the same.
 
 ```bash
 podman run -it --rm -v $(pwd):/scratch:z nvcr.io/nvidia/cuda-dl-base:25.06-cuda12.9-devel-ubuntu24.04 bash
