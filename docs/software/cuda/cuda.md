@@ -17,9 +17,9 @@ A mini-workshop to learn about compiling and running simple CUDA programs on RHE
   - `export PATH=$PATH:/usr/local/cuda/bin`
   - Even better, modify your `~/.bashrc`
 
-- Install the `ImageMagick-c++-devel` rpm
+- Install the `ImageMagick-c++-devel` and `bc` rpms.
 
-`sudo yum install ImageMagick-c++-devel -y`
+`sudo yum install ImageMagick-c++-devel bc -y`
 
 - Clone https://github.com/harrism/nsys_easy
 	- Move the `nsys_easy` script into a directory contained in $PATH
