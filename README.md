@@ -26,9 +26,9 @@ Please complete the prerequisites first. After completing the prerequisites, you
   1. [Time Slice](docs/infra/gpu-timeslice.md)
   1. [MIG](docs/infra/gpu-mig.md)
   1. [NIM Operator](docs/infra/nim-operator.md)
-  1. Network Operator (info only)
-  1. vGPU (info only)
-  1. Base Command Manager (info only)  
+  1. Network Operator
+  1. vGPU
+  1. Base Command Manager 
 - Software
   1. [CUDA](docs/software/cuda/cuda.md)
   1. [PyTorch](docs/software/pytorch/pytorch.md)
