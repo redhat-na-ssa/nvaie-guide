@@ -1,54 +1,60 @@
-# Hands-On CUDA Mini-Workshop
+# CUDA Mini-Workshop
+
 A mini-workshop to learn about compiling and running simple CUDA programs on RHEL.
 
-## Work in Progress
+## Overview
 
-### Overview
+CUDA is a platform and programming model for NVIDIA CUDA-enabled GPUs. The platform exposes GPUs for general purpose computing. CUDA provides C/C++ language extension and APIs for programming and managing GPUs.
 
-CUDA is a platform and programming model that exposes NVIDIA GPUs for general purpose computing. 
-It provides a C/C++ language extension and APIs for programming and managing GPU resources.
-
-CUDA is a foundational API that is closest to the GPU hardware and is often used in HPC use cases.
+CUDA is a foundational API that is closest to the GPU hardware. 
 Higher level AI/ML frameworks such as PyTorch and Tensorflow
-are built on top of CUDA to achieve acceleration of AI/ML training and inferencing on NVIDIA GPU platforms.
+are built on top of CUDA to achieve acceleration on NVIDIA GPU platforms.
 
-##### System setup
+#### Why learn CUDA basics?
 
-- Order the Base Red Hat AI Inference Server (RHAIIS) from the demo catalog.
+You don't need to know CUDA to sell Openshift or train ML models but it will give you
+a better appreciation for how GPUs work and the advantages they bring to AI engineers.
+Besides, its nerdy fun.
+
+#### Prerequisites
+
+- Order the **Base Red Hat AI Inference Server (RHAIIS)** from the demo catalog.
+This is a RHEL9/GPU VM with most of the NVIDIA driver and CUDA stack installed.
+
+- Configure `ssh` so you can login w/o being prompted for a password (i.e. `ssh-copy-id`). This will
+save you some typing.
+
+- There are 3 ways to develop, build and run CUDA programs.
+
+1. Install `vscode` on the VM and use tunneling to connect from a web-based vscode session or
+directly from your laptop.
+
+```bash
+curl -L -o code.tar.gz 'https://code.visualstudio.com/sha/download?build=stable&os=cli-alpine-x64
+tar zxvf code.tar.gz
+mv code $HOME/.local/bin
+code tunnel --accept-server-license-terms --name=<a_unique_name_or_your_initials>
+```
+
+2. Run vscode from your laptop and `ssh` into the VM.
+
+3. Be a hardcore Linux type and use `ssh` and `vim`.
+
 - Perform the following to prepare the system to compile and run CUDA programs.
   - `export PATH=$PATH:/usr/local/cuda/bin`
   - Even better, modify your `~/.bashrc`
 
-```console
-mkdir ~/.bashrc.d
-```
-- Add the following to your `$HOME/.bashrc.d/local` file.
-
-```console
-# Add CUDA to the PATH
-if ! [[ "$PATH" =~ "/usr/local/cuda/bin" ]]
-then
-    PATH="/usr/local/cuda/bin:$PATH"
-fi
-export PATH
-```
-
-Test
+- Install a few extra rpms.
 
 ```bash
-source $HOME/.bashrc.d/local
-echo $PATH
+sudo yum install ImageMagick-c++-devel bc -y
 ```
-
-- Install a few needed rpms.
-
-`sudo yum install ImageMagick-c++-devel install nsight-systems-2024.6.2 bc -y`
 
 - Clone https://github.com/harrism/nsys_easy
 	- Move the `nsys_easy` script into a directory contained in $PATH
 	- `mkdir $HOME/.local/bin` is a good option
 
-#### Exercises to complete.
+##### Compiling and running a few simple code examples.
 
 `cd src`
 
