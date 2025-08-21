@@ -4,11 +4,11 @@ An introductory workshop to learn about compiling, running and tuning simple CUD
 
 ## Overview
 
-CUDA is a platform and programming model for NVIDIA CUDA-enabled GPUs that exposes GPUs for general 
-purpose computing. It provides C/C++ language extension and APIs for programming and managing GPU
+CUDA is a platform and programming model for NVIDIA CUDA-enabled GPUs that exposes the hardware for general 
+purpose computing use cases. It provides a C/C++ language extension and APIs for programming and managing GPU
 resources.
 
-The CUDA API/SDK is a foundational vector programming model that is close to the GPU hardware.
+The CUDA API/SDK is a vector programming model that is close to the GPU hardware.
 Higher level AI/ML frameworks such as PyTorch and Tensorflow
 are built on top of CUDA to achieve AI/ML training and inference acceleration.
 
