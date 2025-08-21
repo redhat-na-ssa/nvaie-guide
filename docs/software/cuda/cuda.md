@@ -1,14 +1,16 @@
 # CUDA Mini-Workshop
 
-A mini-workshop to learn about compiling and running simple CUDA programs on RHEL.
+An introductory workshop to learn about compiling, running and tuning simple CUDA programs on RHEL.
 
 ## Overview
 
-CUDA is a platform and programming model for NVIDIA CUDA-enabled GPUs. The platform exposes GPUs for general purpose computing. CUDA provides C/C++ language extension and APIs for programming and managing GPUs.
+CUDA is a platform and programming model for NVIDIA CUDA-enabled GPUs that exposes the hardware for general 
+purpose computing use cases. It provides a C/C++ language extension and APIs for programming and managing GPU
+resources.
 
-CUDA is a foundational API that is closest to the GPU hardware. 
+The CUDA API/SDK is a vector programming model that is close to the GPU hardware.
 Higher level AI/ML frameworks such as PyTorch and Tensorflow
-are built on top of CUDA to achieve acceleration on NVIDIA GPU platforms.
+are built on top of CUDA to achieve AI/ML training and inference acceleration.
 
 #### Why learn CUDA basics?
 
@@ -24,16 +26,17 @@ This is a RHEL9/GPU VM with most of the NVIDIA driver and CUDA stack installed.
 - Configure `ssh` so you can login w/o being prompted for a password (i.e. `ssh-copy-id`). This will
 save you some typing.
 
-- There are 3 ways to develop, build and run CUDA programs.
+- There are a fews ways to develop, build and run CUDA programs in this workshop.
 
-1. Install `vscode` on the VM and use tunneling to connect from a web-based vscode session or
+1. Install `vscode` on the RHEL VM and use tunneling to connect from a web-based vscode session or
 directly from your laptop.
 
 ```bash
 curl -L -o code.tar.gz 'https://code.visualstudio.com/sha/download?build=stable&os=cli-alpine-x64
 tar zxvf code.tar.gz
+mkdir $HOME/.local/bin
 mv code $HOME/.local/bin
-code tunnel --accept-server-license-terms --name=<a_unique_name_or_your_initials>
+code tunnel --accept-server-license-terms --name=<REPLACE_with_a_unique_name_or_your_initials>
 ```
 
 2. Run vscode from your laptop and `ssh` into the VM.
@@ -52,60 +55,58 @@ sudo yum install ImageMagick-c++-devel bc -y
 
 - Clone https://github.com/harrism/nsys_easy
 	- Move the `nsys_easy` script into a directory contained in $PATH
-	- `mkdir $HOME/.local/bin` is a good option
+	- `$HOME/.local/bin` is a good option
 
-##### Compiling and running a few simple code examples.
+##### Complete the following exercises:
 
-`cd src`
-
-1. Run a simple vector add program to confirm the GPU can run CUDA programs.
+- Begin by running `make` to build all of the programs.
 
 ```bash
+cd src
 make
-./02-add_cuda_block.cu
 ```
 
-2. Examine the device properties. How much memory does your GPU have?
+1. Run `./01-mycudadevice` to display the device properties. How much memory does your GPU have?
 
 `./01mycudadevice`
 
-- Modify `./01mycudadevice.cu` to print out the maximum number of threads per multiproccesor.
+- Search for TODO in the `01-mycudadevice.cu` source file and modify the program 
+to print out the maximum number of threads per multiproccesor.
 See the [CUDA API docs for the correct property to retrieve.](https://docs.nvidia.com/cuda/cuda-runtime-api/structcudaDeviceProp.html#structcudaDeviceProp) 
 
 - What is the theoretical maximum number of simultaneous threads that can execute on your device?
 
-3. Complete the image processing example program.
+2. Run a simple vector add program to confirm the GPU can run CUDA programs.
+
+```bash
+./02-add_cuda_block
+```
+
+3. Complete the example image processing program.
 
 - Begin by opening `03-rgb2gray.cu`
   - Complete TODO #1 by merging `snippets/convert.cu` into `03-rgb2gray.cu`
   - Run a `make` to confirm that there are no typos.
   - Complete TODO #2 by merging `snippets/call_kernel.cu` into `03-rgb2gray.cu`
   - Run a `make` to confirm that there are no typos.
-  - If everything goes well the program should create a `gray.png` image.
+  - If everything goes well the program should create a `gray.png` image that is visually correct.
 
-- Run the profiler and take note on the execution time of the `CUDA_KERNEL`
+4. Run the profiler and take note on the execution time of the `CUDA_KERNEL`.
 
 ```bash
 nsys_easy ./03-rgb2gray
 ```
 
-- Now experiment with different thread sizes and observe/compare the execution times.
+5. Now experiment with different block thread sizes and observe/compare the execution times.
+
+- What is the optimal number of t for your device?
 
 ```bash
 nsys_easy ./03-rgb2gray -t 8
 ```
-```bash
-for i in 1 2 4 8 16 32; do echo "# CUDA_KERNEL Threads = " $i "x" $i;nsys_easy ./03-rgb2gray -t $i; done | grep CUDA_KERNEL
-```
 
 #### End of Workshop
 
-Containers may core dump cuda programs if the cuda versions between the container and host are not 
-the same.
-
-```bash
-podman run -it --rm -v $(pwd):/scratch:z nvcr.io/nvidia/cuda-dl-base:25.06-cuda12.9-devel-ubuntu24.04 bash
-```
 
 ###### References
 
