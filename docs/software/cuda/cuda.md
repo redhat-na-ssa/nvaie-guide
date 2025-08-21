@@ -41,7 +41,7 @@ code tunnel --accept-server-license-terms --name=<REPLACE_with_a_unique_name_or_
 
 2. Run vscode from your laptop and `ssh` into the VM.
 
-3. Be a hardcore Linux type and use `ssh` and `vim`.
+3. Hardcore Linux users can always use `ssh` and `vim`.
 
 - Perform the following to prepare the system to compile and run CUDA programs.
   - `export PATH=$PATH:/usr/local/cuda/bin`
@@ -74,15 +74,17 @@ make
 to print out the maximum number of threads per multiproccesor.
 See the [CUDA API docs for the correct property to retrieve.](https://docs.nvidia.com/cuda/cuda-runtime-api/structcudaDeviceProp.html#structcudaDeviceProp) 
 
-- What is the theoretical maximum number of simultaneous threads that can execute on your device?
+- What is the theoretical maximum number of simultaneous threads that can execute on your device? _____
 
-2. Run a simple vector add program to confirm the GPU can run CUDA programs.
+2. Run a simple vector add program to confirm the GPU can execute CUDA kernels.
 
 ```bash
 ./02-add_cuda_block
 ```
 
-3. Complete the example image processing program.
+3. Complete the example image processing program. This will involve creating a CUDA kernel function and calling it from the main program.
+
+- Run the program. It should create a `gray.png` image file that contains all black pixels.
 
 - Begin by opening `03-rgb2gray.cu`
   - Complete TODO #1 by merging `snippets/convert.cu` into `03-rgb2gray.cu`
