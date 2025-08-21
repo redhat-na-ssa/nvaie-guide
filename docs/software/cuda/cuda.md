@@ -57,7 +57,7 @@ sudo yum install ImageMagick-c++-devel bc -y
 	- Move the `nsys_easy` script into a directory contained in $PATH
 	- `$HOME/.local/bin` is a good option
 
-##### Complete the following exercises:
+#### Complete the following exercises:
 
 - Begin by running `make` to build all of the programs.
 
