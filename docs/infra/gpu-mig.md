@@ -62,7 +62,7 @@ oc get node $NODE_NAME -o jsonpath-as-json='{.status.allocatable}'
 [
     {
         ...
-        "nvidia.com/gpu: "2",
+        "nvidia.com/gpu: "16",
         ...
     }
 ]
@@ -105,9 +105,9 @@ oc get node $NODE_NAME -o jsonpath-as-json='{.status.allocatable}'
 [
     {
         ...
-        "nvidia.com/mig-1g.5gb": "2",
-        "nvidia.com/mig-2g.10gb": "1",
-        "nvidia.com/mig-3g.20gb": "1",
+        "nvidia.com/mig-1g.5gb": "16",
+        "nvidia.com/mig-2g.10gb": "8",
+        "nvidia.com/mig-3g.20gb": "8",
         ...        
     }
 ]
