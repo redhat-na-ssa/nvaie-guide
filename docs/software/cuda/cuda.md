@@ -14,7 +14,7 @@ are built on top of CUDA to achieve AI/ML training and inference acceleration.
 
 #### Why learn CUDA basics?
 
-You don't need to know CUDA to sell Openshift or train ML models but it will give you
+You don't need to know CUDA to sell Openshift or train ML models, but it will give you
 a better appreciation for how GPUs work and the advantages they bring to AI engineers.
 Besides, its nerdy fun.
 
