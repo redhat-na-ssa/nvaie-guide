@@ -1,7 +1,6 @@
 //
 // CUDA program to convert RGB image to grayscale.
 //
-// There is a bug in this program when processing non-square images.
 //
 #include "rgb2gray.hpp"
 #include <Magick++.h> 
@@ -17,28 +16,6 @@ using namespace Magick;
 __global__ void convert(unsigned char *d_r, unsigned char *d_g, unsigned char *d_b, unsigned char *d_gray, int width, int height)
 {
 
-}
-
-__host__ float compareGrayImages(unsigned char *gray, unsigned char *test_gray, int rows, int columns)
-{
-    cout << "Comparing actual and test grayscale pixel arrays\n";
-    int numImagePixels = rows * columns;
-    int imagePixelDifference = 0.0;
-
-    for(int r = 0; r < rows; ++r)
-    {
-        for(int c = 0; c < columns; ++c)
-        {
-            unsigned char image0Pixel = gray[r*rows+c];
-            unsigned char image1Pixel = test_gray[r*rows+c];
-            imagePixelDifference += abs(image0Pixel - image1Pixel);
-        }
-    }
-
-    float meanImagePixelDifference = imagePixelDifference / numImagePixels;
-    float scaledMeanDifferencePercentage = (meanImagePixelDifference / 255);
-    printf("meanImagePixelDifference: %f scaledMeanDifferencePercentage: %f\n", meanImagePixelDifference, scaledMeanDifferencePercentage);
-    return scaledMeanDifferencePercentage;
 }
 
 __host__ std::tuple<unsigned char *, unsigned char *, unsigned char *, unsigned char *> allocateDeviceMemory(int rows, int columns)
@@ -83,7 +60,7 @@ __host__ std::tuple<unsigned char *, unsigned char *, unsigned char *, unsigned 
         exit(EXIT_FAILURE);
     }
 
-    //Allocate device constant symbols for rows and columns
+    // Allocate device constant symbols for rows and columns
     cudaMemcpyToSymbol(d_rows, &rows, sizeof(int), 0, cudaMemcpyHostToDevice);
     cudaMemcpyToSymbol(d_columns, &columns, sizeof(int), 0, cudaMemcpyHostToDevice);
 
@@ -136,7 +113,7 @@ __host__ void executeKernel(unsigned char *d_r, unsigned char *d_g, unsigned cha
     // TODO #2 
     // Call the CUDA kernel that converts the RGB image to gray scale.
     //
-    
+
     cudaError_t err = cudaGetLastError();
 
     if (err != cudaSuccess)
@@ -212,13 +189,12 @@ __host__ void cleanUpDevice()
     }
 }
 
-__host__ std::tuple<std::string, std::string, std::string, int> parseCommandLineArguments(int argc, char *argv[])
+__host__ std::tuple<std::string, std::string, int> parseCommandLineArguments(int argc, char *argv[])
 {
     cout << "Parsing CLI arguments\n";
-    int threadsPerBlock = 32;
+    int threadsPerBlock = 16;
     std::string inputImage = "images/rainbow_2048.png";
-    std::string outputImage = "grey.jpg";
-    std::string currentPartId = "test";
+    std::string outputImage = "grey.png";
 
     for (int i = 1; i < argc; i++)
     {
@@ -237,19 +213,15 @@ __host__ std::tuple<std::string, std::string, std::string, int> parseCommandLine
         {
             threadsPerBlock = atoi(value.c_str());
         }
-        else if (option.compare("-p") == 0)
-        {
-            currentPartId = value;
-        }
     }
-    cout << "inputImage: " << inputImage << " outputImage: " << outputImage << " currentPartId: " << currentPartId << " threadsPerBlock dimension: " << threadsPerBlock << "\n";
-    return {inputImage, outputImage, currentPartId, threadsPerBlock};
+
+    cout << "inputImage: " << inputImage << " outputImage: " << outputImage << " threadsPerBlock dimension: " << threadsPerBlock << "\n";
+    return {inputImage, outputImage, threadsPerBlock};
 }
 
 __host__ std::tuple<int, int, unsigned char *, unsigned char *, unsigned char *> readImageFromFile(std::string inputFile)
 {
     cout << "Reading Image From File\n";
-    // Mat img = imread(inputFile, IMREAD_COLOR);
     Image img;
     img.read(inputFile);
 
@@ -280,33 +252,12 @@ __host__ std::tuple<int, int, unsigned char *, unsigned char *, unsigned char *>
     return {rows, columns, h_r, h_g, h_b};
 }
 
-__host__ unsigned char *cpuConvertToGray(std::string inputFile)
-{
-    cout << "CPU converting image file to grayscale\n";
-    // Mat grayImage = imread(inputFile, IMREAD_GRAYSCALE);
-    const int rows = 256;
-    const int columns = 256;
-
-    unsigned char *gray = (unsigned char *)malloc(sizeof(unsigned char) * rows * columns);
-
-    for(int r = 0; r < rows; ++r)
-    {
-        for(int c = 0; c < columns; ++c)
-        {
-//            gray[r*rows+c] = min(grayImage.at<unsigned char>(r, c), 254);
-        }
-    }
-
-    return gray;
-}
-
 int main(int argc, char *argv[])
 {
-    std::tuple<std::string, std::string, std::string, int> parsedCommandLineArgsTuple = parseCommandLineArguments(argc, argv);
+    std::tuple<std::string, std::string, int> parsedCommandLineArgsTuple = parseCommandLineArguments(argc, argv);
     std::string inputImage = get<0>(parsedCommandLineArgsTuple);
     std::string outputImage = get<1>(parsedCommandLineArgsTuple);
-    std::string currentPartId = get<2>(parsedCommandLineArgsTuple);
-    int threadsPerBlock = get<3>(parsedCommandLineArgsTuple);
+    int threadsPerBlock = get<2>(parsedCommandLineArgsTuple);
     try 
     {
         auto[rows, columns, h_r, h_g, h_b] = readImageFromFile(inputImage);
@@ -327,54 +278,29 @@ int main(int argc, char *argv[])
         deallocateMemory(d_r, d_g, d_b, d_gray);
         cleanUpDevice();
 
-        // Mat grayImageMat(rows, columns, CV_8UC1);
         InitializeMagick(*argv);
         Image image;
-        // Each pixel is GRAY, 8 bytes (unsigned short) per pixel
+        // Each pixel is GRAY, 8 bytes (4 unsigned shorts per pixel).
         vector<unsigned short> rawPixels(columns * rows * 4); 
 
-        // Fill the buffer with some simple pixel data (e.g., a blue rectangle)
         for (size_t i = 0; i < columns * rows; ++i) {
             rawPixels[i * 4 + 0] = gray[i] * 257; // Red
             rawPixels[i * 4 + 1] = gray[i] * 257; // Green
             rawPixels[i * 4 + 2] = gray[i] * 257; // Blue
             rawPixels[i * 4 + 3] = 65535; // Alpha (fully opaque)
         }
+        
         // Create an Image from the gray data.
         Blob my_blob(rawPixels.data(), rawPixels.size() * sizeof(unsigned short));
         image.size(Geometry(columns, rows));
 	    // Specify the pixel format (Red, Green, Blue, Alpha)
         image.magick("RGBA"); 
         image.read(my_blob);
-	    // Convert the image from rgba to jpeg.
+	    // Convert the image from rgba to png.
 	    image.magick("PNG"); 
-        image.write("gray.png");
 
-    
-
-        // Write the image to a file.
-        // mage.write(outputImage);
-
-        // vector<int> compression_params;
-        // compression_params.push_back(IMWRITE_PNG_COMPRESSION);
-        // compression_params.push_back(9);
-
-        //cout << "Output gray intensities: ";
-        // for(int r = 0; r < rows; ++r)
-        // {
-        //     for(int c = 0; c < columns; ++c)
-        //     {
-        //         grayImageMat.at<unsigned char>(r,c) = gray[r*rows+c];
-        //     }
-        // }
-        //cout << "\n";
-
-        // imwrite(outputImage, grayImageMat, compression_params);
-
-        // unsigned char *test_gray = cpuConvertToGray(inputImage);
-        
-        // float scaledMeanDifferencePercentage = compareGrayImages(gray, test_gray, rows, columns) * 100;
-        // cout << "Mean difference percentage: " << scaledMeanDifferencePercentage << "\n";
+        cout << "Writing output image to: " << outputImage << endl;
+        image.write(outputImage);
     }
     catch (Exception &error_)
     {

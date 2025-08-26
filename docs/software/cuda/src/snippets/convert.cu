@@ -1,6 +1,13 @@
+    
+    //
+    // Calculate the global pixel coordinates for this thread.
+    //
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;
     
+    //
+    // Check if the pixel coordinates are within the image bounds.
+    //
     if (x < width && y < height) {
         int index = (y * width + x);
         index = (x * height + y);
@@ -8,7 +15,7 @@
         unsigned char g = d_g[index];
         unsigned char b = d_b[index];
 
-        // Standard NTSC grayscale conversion formula
+        // Convert to grayscale using the Standard NTSC conversion formula.
         d_gray[index] = static_cast<unsigned char>(0.299f * r + 0.587f * g + 0.114f * b);
 
     }
