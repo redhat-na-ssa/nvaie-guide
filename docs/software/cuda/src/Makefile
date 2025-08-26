@@ -23,6 +23,6 @@ all: $(CUDA_BINS)
 	$(NVCC) $(CXXFLAGS)$(LDFLAGS) $< -o $@
 
 clean:
-	rm -f $(CUDA_BINS) gray.png nsys_easy.*
+	rm -f $(CUDA_BINS) grey.png nsys_easy.*
 
 .PHONY: all clean
