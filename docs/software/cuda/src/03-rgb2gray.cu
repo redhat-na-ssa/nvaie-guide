@@ -15,6 +15,7 @@ using namespace Magick;
 //
 __global__ void convert(unsigned char *d_r, unsigned char *d_g, unsigned char *d_b, unsigned char *d_gray, int width, int height)
 {
+    
 
 }
 
