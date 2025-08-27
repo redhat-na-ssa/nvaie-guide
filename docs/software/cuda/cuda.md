@@ -107,6 +107,8 @@ nsys_easy ./03-rgb2gray
 nsys_easy ./03-rgb2gray -t 8
 ```
 
+6. Ask the Copilot code assitant to create a new CUDA program that calculates a Mandelbrot or Julia set and saves it as a png file.
+
 #### End of Workshop
 
 
