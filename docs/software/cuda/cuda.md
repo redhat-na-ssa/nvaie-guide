@@ -50,7 +50,7 @@ code tunnel --accept-server-license-terms --name=<REPLACE_with_a_unique_name_or_
 - Install a few extra rpms.
 
 ```bash
-sudo yum install ImageMagick-c++-devel bc -y
+sudo yum install libpng-devel bc -y
 ```
 
 - Clone https://github.com/harrism/nsys_easy
