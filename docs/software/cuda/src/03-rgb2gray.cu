@@ -3,10 +3,12 @@
 //
 //
 #include "rgb2gray.hpp"
-#include <Magick++.h> 
-#include <iostream>   
+#include <png.h>
+#include <iostream>
+#include <vector>
+#include <tuple>
+#include <cstdlib>
 using namespace std;
-using namespace Magick;
 
 //
 // TODO #1
@@ -19,10 +21,10 @@ __global__ void convert(unsigned char *d_r, unsigned char *d_g, unsigned char *d
 
 }
 
-__host__ std::tuple<unsigned char *, unsigned char *, unsigned char *, unsigned char *> allocateDeviceMemory(int rows, int columns)
+__host__ std::tuple<unsigned char *, unsigned char *, unsigned char *, unsigned char *> allocateDeviceMemory(int width, int height)
 {
     cout << "Allocating GPU device memory\n";
-    int num_image_pixels = rows * columns;
+    int num_image_pixels = width * height;
     size_t size = num_image_pixels * sizeof(unsigned char);
 
     // Allocate the device input vector d_r
@@ -61,18 +63,18 @@ __host__ std::tuple<unsigned char *, unsigned char *, unsigned char *, unsigned 
         exit(EXIT_FAILURE);
     }
 
-    // Allocate device constant symbols for rows and columns
-    cudaMemcpyToSymbol(d_rows, &rows, sizeof(int), 0, cudaMemcpyHostToDevice);
-    cudaMemcpyToSymbol(d_columns, &columns, sizeof(int), 0, cudaMemcpyHostToDevice);
+    // Allocate device constant symbols for width and height
+    cudaMemcpyToSymbol(d_width, &width, sizeof(int), 0, cudaMemcpyHostToDevice);
+    cudaMemcpyToSymbol(d_height, &height, sizeof(int), 0, cudaMemcpyHostToDevice);
 
     return {d_r, d_g, d_b, d_gray};
 }
 
 
-__host__ void copyFromHostToDevice(unsigned char *h_r, unsigned char *d_r, unsigned char *h_g, unsigned char *d_g, unsigned char *h_b, unsigned char *d_b, int rows, int columns)
+__host__ void copyFromHostToDevice(unsigned char *h_r, unsigned char *d_r, unsigned char *h_g, unsigned char *d_g, unsigned char *h_b, unsigned char *d_b, int width, int height)
 {
     cout << "Copying from Host to Device\n";
-    int num_image_pixels = rows * columns;
+    int num_image_pixels = width * height;
     size_t size = num_image_pixels * sizeof(unsigned char);
 
     cudaError_t err;
@@ -98,17 +100,17 @@ __host__ void copyFromHostToDevice(unsigned char *h_r, unsigned char *d_r, unsig
     }
 }
 
-__host__ void executeKernel(unsigned char *d_r, unsigned char *d_g, unsigned char *d_b, unsigned char *d_gray, int rows, int columns, int threadsPerBlock)
+__host__ void executeKernel(unsigned char *d_r, unsigned char *d_g, unsigned char *d_b, unsigned char *d_gray, int width, int height, int threadsPerBlock)
 {
     cout << "Executing kernel\n";
 
     // Calculate grid and block dimensions
     dim3 block(threadsPerBlock, threadsPerBlock, 1);
-    dim3 grid(ceil((float) columns / block.x), ceil((float) rows / block.y), 1);
+    dim3 grid(ceil((float) width / block.x), ceil((float) height / block.y), 1);
 
     cout << "threadsPerBlock = " << threadsPerBlock << " x " << threadsPerBlock << endl;
     cout << "grid = " << grid.x << " " << grid.y << ", " << "block = " << block.x << " " << block.y << endl;
-    cout << "total pixels = " << rows * columns << ", total threads = " << grid.x * grid.y * block.x * block.y << endl;
+    cout << "total pixels = " << width * height << ", total threads = " << grid.x * grid.y * block.x * block.y << endl;
     
     // 
     // TODO #2 
@@ -124,11 +126,11 @@ __host__ void executeKernel(unsigned char *d_r, unsigned char *d_g, unsigned cha
     }
 }
 
-__host__ void copyFromDeviceToHost(unsigned char *d_gray, unsigned char *gray, int rows, int columns)
+__host__ void copyFromDeviceToHost(unsigned char *d_gray, unsigned char *gray, int width, int height)
 {
     cout << "Copying from Device to Host\n";
     // Copy the device result int array in device memory to the host result int array in host memory.
-    size_t size = rows * columns * sizeof(unsigned char);
+    size_t size = width * height * sizeof(unsigned char);
 
     cudaError_t err = cudaMemcpy(gray, d_gray, size, cudaMemcpyDeviceToHost);
 
@@ -220,38 +222,90 @@ __host__ std::tuple<std::string, std::string, int> parseCommandLineArguments(int
     return {inputImage, outputImage, threadsPerBlock};
 }
 
-__host__ std::tuple<int, int, unsigned char *, unsigned char *, unsigned char *> readImageFromFile(std::string inputFile)
+// Helper: Read PNG file into RGB arrays
+std::tuple<int, int, std::vector<unsigned char>, std::vector<unsigned char>, std::vector<unsigned char>>
+readPNG(const std::string &filename)
 {
-    cout << "Reading Image From File\n";
-    Image img;
-    img.read(inputFile);
+    FILE *fp = fopen(filename.c_str(), "rb");
+    if (!fp) { cerr << "Cannot open file " << filename << endl; exit(1); }
 
-    const int rows = img.rows();
-    const int columns = img.columns();
-    const int channels = img.depth();
+    png_structp png = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+    png_infop info = png_create_info_struct(png);
+    if (setjmp(png_jmpbuf(png))) { cerr << "PNG read error\n"; exit(1); }
+    png_init_io(png, fp);
+    png_read_info(png, info);
 
-    cout << "Rows: " << rows << " Columns: " << columns << " Channels: " << channels << "\n";
+    int width = png_get_image_width(png, info);
+    int height = png_get_image_height(png, info);
+    int alpha = png_get_valid(png, info, PNG_INFO_tRNS) ? 1 : 0;
+    int depth = png_get_bit_depth(png, info);
+    cout << "Image width: " << width << ", height: " << height << ", depth: " << depth << ", alpha: " << alpha << endl;
 
-    unsigned char *h_r = (unsigned char *)malloc(sizeof(unsigned char) * rows * columns);
-    unsigned char *h_g = (unsigned char *)malloc(sizeof(unsigned char) * rows * columns);
-    unsigned char *h_b = (unsigned char *)malloc(sizeof(unsigned char) * rows * columns);
-    cout << "malloc passed" << endl;
-    
-    for(int r = 0; r < rows; ++r)
-    {
-        for(int c = 0; c < columns; ++c)
-        {
-            Color pixel = img.pixelColor(c, r);
-            h_r[r*rows+c] = (int) 255 * (float) pixel.redQuantum() / QuantumRange;
-            h_g[r*rows+c] = (int) 255 * (float) pixel.greenQuantum() / QuantumRange;
-            h_b[r*rows+c] = (int) 255 * (float) pixel.blueQuantum() / QuantumRange;
+    png_byte color_type = png_get_color_type(png, info);
+    png_byte bit_depth = png_get_bit_depth(png, info);
+
+    if (bit_depth == 16) png_set_strip_16(png);
+    if (color_type == PNG_COLOR_TYPE_PALETTE) png_set_palette_to_rgb(png);
+    if (color_type == PNG_COLOR_TYPE_GRAY && bit_depth < 8) png_set_expand_gray_1_2_4_to_8(png);
+    if (png_get_valid(png, info, PNG_INFO_tRNS)) png_set_tRNS_to_alpha(png);
+    if (color_type == PNG_COLOR_TYPE_GRAY || color_type == PNG_COLOR_TYPE_GRAY_ALPHA) png_set_gray_to_rgb(png);
+
+    png_read_update_info(png, info);
+
+    int rowbytes = png_get_rowbytes(png, info);
+    int channels = rowbytes / width; // 3 for RGB, 4 for RGBA
+
+    std::vector<unsigned char> image_data(rowbytes * height);
+    std::vector<png_bytep> row_pointers(height);
+    for (int y = 0; y < height; y++)
+        row_pointers[y] = &image_data[y * rowbytes];
+
+    png_read_image(png, row_pointers.data());
+    fclose(fp);
+    png_destroy_read_struct(&png, &info, nullptr);
+
+    std::vector<unsigned char> r(width * height), g(width * height), b(width * height);
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            int idx = y * width + x;
+            int base = x * channels;
+            r[idx] = row_pointers[y][base + 0];
+            g[idx] = row_pointers[y][base + 1];
+            b[idx] = row_pointers[y][base + 2];
+            // Ignore alpha channel if present
         }
     }
-
-    cout << "Finished reading image into RGB arrays\n";
-
-    return {rows, columns, h_r, h_g, h_b};
+    return {width, height, r, g, b};
 }
+
+// Helper: Write grayscale PNG file
+void writePNG(const std::string &filename, const unsigned char *gray, int width, int height)
+{
+    FILE *fp = fopen(filename.c_str(), "wb");
+    if (!fp) { cerr << "Cannot open file " << filename << endl; exit(1); }
+
+    png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+    png_infop info = png_create_info_struct(png);
+    if (setjmp(png_jmpbuf(png))) { cerr << "PNG write error\n"; exit(1); }
+    png_init_io(png, fp);
+
+    png_set_IHDR(png, info, width, height, 8, PNG_COLOR_TYPE_GRAY, PNG_INTERLACE_NONE,
+                 PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+
+    png_write_info(png, info);
+
+    std::vector<png_bytep> row_pointers(height);
+    for (int y = 0; y < height; y++)
+        row_pointers[y] = (png_bytep)(gray + y * width); // FIXED: correct row pointer
+
+    png_write_image(png, row_pointers.data());
+    png_write_end(png, nullptr);
+
+    fclose(fp);
+    png_destroy_write_struct(&png, &info);
+}
+
+// ...existing CUDA memory and utility functions...
 
 int main(int argc, char *argv[])
 {
@@ -259,51 +313,32 @@ int main(int argc, char *argv[])
     std::string inputImage = get<0>(parsedCommandLineArgsTuple);
     std::string outputImage = get<1>(parsedCommandLineArgsTuple);
     int threadsPerBlock = get<2>(parsedCommandLineArgsTuple);
+
     try 
     {
-        auto[rows, columns, h_r, h_g, h_b] = readImageFromFile(inputImage);
-        cout << "Finshed reading image file." << endl;
+        auto[width, height, h_r_vec, h_g_vec, h_b_vec] = readPNG(inputImage);
+        unsigned char *h_r = h_r_vec.data();
+        unsigned char *h_g = h_g_vec.data();
+        unsigned char *h_b = h_b_vec.data();
 
-        unsigned char *gray = (unsigned char *)malloc(sizeof(unsigned char) * rows * columns);
-        std::tuple<unsigned char *, unsigned char *, unsigned char *, unsigned char *> memoryTuple = allocateDeviceMemory(rows, columns);
+        unsigned char *gray = (unsigned char *)malloc(sizeof(unsigned char) * width * height);
+        std::tuple<unsigned char *, unsigned char *, unsigned char *, unsigned char *> memoryTuple = allocateDeviceMemory(width, height);
         unsigned char *d_r = get<0>(memoryTuple);
         unsigned char *d_g = get<1>(memoryTuple);
         unsigned char *d_b = get<2>(memoryTuple);
         unsigned char *d_gray = get<3>(memoryTuple);
 
-        copyFromHostToDevice(h_r, d_r, h_g, d_g, h_b, d_b, rows, columns);
+        copyFromHostToDevice(h_r, d_r, h_g, d_g, h_b, d_b, width, height);
 
-        executeKernel(d_r, d_g, d_b, d_gray, rows, columns, threadsPerBlock);
+        executeKernel(d_r, d_g, d_b, d_gray, width, height, threadsPerBlock);
 
-        copyFromDeviceToHost(d_gray, gray, rows, columns);
+        copyFromDeviceToHost(d_gray, gray, width, height);
         deallocateMemory(d_r, d_g, d_b, d_gray);
         cleanUpDevice();
 
-        InitializeMagick(*argv);
-        Image image;
-        // Each pixel is GRAY, 8 bytes (4 unsigned shorts per pixel).
-        vector<unsigned short> rawPixels(columns * rows * 4); 
-
-        for (size_t i = 0; i < columns * rows; ++i) {
-            rawPixels[i * 4 + 0] = gray[i] * 257; // Red
-            rawPixels[i * 4 + 1] = gray[i] * 257; // Green
-            rawPixels[i * 4 + 2] = gray[i] * 257; // Blue
-            rawPixels[i * 4 + 3] = 65535; // Alpha (fully opaque)
-        }
-        
-        // Create an Image from the gray data.
-        Blob my_blob(rawPixels.data(), rawPixels.size() * sizeof(unsigned short));
-        image.size(Geometry(columns, rows));
-	    // Specify the pixel format (Red, Green, Blue, Alpha)
-        image.magick("RGBA"); 
-        image.read(my_blob);
-	    // Convert the image from rgba to png.
-	    image.magick("PNG"); 
-
-        cout << "Writing output image to: " << outputImage << endl;
-        image.write(outputImage);
+        writePNG(outputImage, gray, width, height); // FIXED: correct order
     }
-    catch (Exception &error_)
+    catch (std::exception &error_)
     {
         cout << "Caught exception: " << error_.what() << endl;
         return 1;
