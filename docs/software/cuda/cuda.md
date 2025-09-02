@@ -22,7 +22,7 @@ Besides, its nerdy fun.
 
 - A github account.
 
-- Order the **Base Red Hat AI Inference Server (RHAIIS)** from the demo catalog.
+- Order the [**Base Red Hat AI Inference Server (RHAIIS)**](https://catalog.demo.redhat.com/catalog?item=babylon-catalog-prod/rhdp.rhaiis-on-rhel.prod&utm_source=webapp&utm_medium=share-link) from the demo catalog.
 We will not be using the inference server but this VM comes configured with most of what we need
 to build and run CUDA programs.
 
