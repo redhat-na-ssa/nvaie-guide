@@ -84,9 +84,9 @@ In the main program:
     - Calculate the global thread index
     - Perform bounds checking before writing to memory. 
 
-1) Choose the number of threads per block (a.k.a. 4x4).
+2) Choose the number of threads per block (a.k.a. 4x4).
 
-2) Calculate 
+1) Calculate 
 the grid dimensions Based on the dimensions of the data (4x2).
 
 3) Call the kernel function with the grid and block dimensions.
