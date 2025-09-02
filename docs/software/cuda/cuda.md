@@ -80,16 +80,22 @@ The general workflow is:
 
 In the main program:
 
-1) Create a CUDA kernel function that at a minimum, performs the following:
+1) Allocate CUDA memory
+   
+2) Copy host variables to CUDA memory
+   
+3) Create a CUDA kernel function that at a minimum, performs the following:
     - Calculate the global thread index
     - Perform bounds checking before writing to memory. 
 
-2) Choose the number of threads per block (a.k.a. 4x4).
+4) Choose the number of threads per block (a.k.a. 4x4).
 
-1) Calculate 
+5) Calculate 
 the grid dimensions Based on the dimensions of the data (4x2).
 
-3) Call the kernel function with the grid and block dimensions.
+6) Call the kernel function with the grid and block dimensions.
+7) Wait for the threads to syncronize
+8) Free the CUDA memory
 
 In the kernel:
 
