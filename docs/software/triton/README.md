@@ -40,7 +40,7 @@ I0521 18:49:00.663425 23 http_server.cc:4755] "Started HTTPService at 0.0.0.0:80
 
 - Get the route
 ```bash
-HOST="https://"$(oc get route triton-server -o jsonpath='{.spec.host}')
+export HOST="https://"$(oc get route triton-server -o jsonpath='{.spec.host}')
 ```
 
 Triton supports the [kserve api](https://github.com/kserve/kserve/blob/master/docs/predict-api/v2/required_api.md) and
