@@ -32,10 +32,8 @@ save you some typing.
 directly from your laptop.
 
 ```bash
-curl -L -o code.tar.gz 'https://code.visualstudio.com/sha/download?build=stable&os=cli-alpine-x64
-tar zxvf code.tar.gz
 mkdir $HOME/.local/bin
-mv code $HOME/.local/bin
+curl -L -o - 'https://code.visualstudio.com/sha/download?build=stable&os=cli-alpine-x64' | tar zxvf - -C $HOME/.local/bin
 code tunnel --accept-server-license-terms --name=<REPLACE_with_a_unique_name_or_your_initials>
 ```
 
