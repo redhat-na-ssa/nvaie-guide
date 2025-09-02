@@ -118,7 +118,7 @@ cd nvaie-guide/docs/software/cuda/src
 make
 ```
 
-1. Run `./01-mycudadevice` to display the device properties. How much memory does your GPU have?
+1. Run `./01-mycudadevice` to display the device properties. How much memory does your GPU have? _____
 
 `./01mycudadevice`
 
