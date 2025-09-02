@@ -21,12 +21,13 @@ Besides, its nerdy fun.
 #### Prerequisites
 
 - Order the **Base Red Hat AI Inference Server (RHAIIS)** from the demo catalog.
-This is a RHEL9/GPU VM with most of the NVIDIA driver and CUDA stack installed.
+We will not be using the inference server but this VM comes configured with most of what we need
+to build and run CUDA programs.
 
 - Configure `ssh` so you can login w/o being prompted for a password (i.e. `ssh-copy-id`). This will
 save you some typing.
 
-- There are a fews ways to develop, build and run CUDA programs in this workshop.
+- There are a fews ways to develop, build and run CUDA programs in this workshop. Below are 3 options.
 
 1. Install `vscode` on the RHEL VM and use tunneling to connect from a web-based vscode session or
 directly from your laptop.
@@ -41,7 +42,7 @@ code tunnel --accept-server-license-terms --name=<REPLACE_with_a_unique_name_or_
 
 3. Hardcore Linux users can always use `ssh` and `vim`.
 
-- Perform the following to prepare the system to compile and run CUDA programs.
+- Next, perform the following to prepare the system to compile and run CUDA programs.
   - `export PATH=$PATH:/usr/local/cuda/bin`
   - Even better, modify your `~/.bashrc`
 
