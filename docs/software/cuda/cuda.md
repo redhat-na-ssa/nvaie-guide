@@ -20,6 +20,8 @@ Besides, its nerdy fun.
 
 #### Prerequisites
 
+- A github account.
+
 - Order the **Base Red Hat AI Inference Server (RHAIIS)** from the demo catalog.
 We will not be using the inference server but this VM comes configured with most of what we need
 to build and run CUDA programs.
@@ -27,8 +29,7 @@ to build and run CUDA programs.
 - Configure `ssh` so you can login w/o being prompted for a password (i.e. `ssh-copy-id`). This will
 save you some typing.
 
-
-- There are a fews ways to develop, build and run CUDA programs in this workshop. Below are 3 options.
+- There are a few ways to develop, build and run CUDA programs in this workshop. Below are 3 options.
 
 1. Install `vscode` on the RHEL VM and use tunneling to connect from a web-based vscode session or
 directly from your laptop.
@@ -36,7 +37,12 @@ directly from your laptop.
 ```bash
 mkdir $HOME/.local/bin
 curl -L -o - 'https://code.visualstudio.com/sha/download?build=stable&os=cli-alpine-x64' | tar zxvf - -C $HOME/.local/bin
-code tunnel --accept-server-license-terms --name=<REPLACE_with_a_unique_name_or_your_initials>
+```
+
+- Substitute <REPLACE_WITH_YOUR_NAME> below, run the vscode tunnel service and follow the prompts.
+
+```bash
+code tunnel --accept-server-license-terms --name=<REPLACE_WITH_YOUR_NAME>
 ```
 
 2. Run vscode from your laptop and `ssh` into the VM.
@@ -73,6 +79,10 @@ Part (b) demonstrates how a computational task is organized for execution on thi
 The general workflow is:
 
 In the main program:
+
+1) Create a CUDA kernel function that at a minimum, performs the following:
+    - Calculate the global thread index
+    - Perform bounds checking before writing to memory. 
 
 1) Choose the number of threads per block (a.k.a. 4x4).
 
