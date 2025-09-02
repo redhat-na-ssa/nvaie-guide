@@ -95,7 +95,8 @@ the grid dimensions Based on the dimensions of the data (4x2).
 
 6) Call the kernel function with the grid and block dimensions.
 7) Wait for the threads to syncronize
-8) Free the CUDA memory
+8) Copy memory from CUDA to host
+9) Free the CUDA memory
 
 In the kernel:
 
