@@ -133,7 +133,7 @@ python 02-inference-triton.py
 
 Sample output
 ```console
-INFO:root:REST inference response content = {"model_name":"lr","model_version":"2","outputs":[{"name":"output_name","datatype":"FP32","shape":[1],"data":[7.678570747375488]}]}
+INFO:root:REST inference response content = {"model_name":"lr","model_version":"1","outputs":[{"name":"output_name","datatype":"FP32","shape":[1],"data":[4.999999523162842]}]}
 ```
 
 Get the stats
