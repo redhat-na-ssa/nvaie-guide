@@ -6,8 +6,8 @@
 CUDA_PATH   := /usr/local/cuda
 NVCC        := $(CUDA_PATH)/bin/nvcc
 CXX         := g++
-CXXFLAGS    := --std=c++17 -I/usr/include/ImageMagick-6 -DMAGICKCORE_HDRI_ENABLE=0 -DMAGICKCORE_QUANTUM_DEPTH=16 -Wno-deprecated-gpu-targets
-LDFLAGS     := $(shell Magick++-config --ldflags --libs) -lpng
+CXXFLAGS    := --std=c++17 -Wno-deprecated-gpu-targets
+LDFLAGS     := -lpng
 
 # CUDA sources
 CUDA_SRCS   := $(wildcard *.cu)

@@ -27,6 +27,7 @@ to build and run CUDA programs.
 - Configure `ssh` so you can login w/o being prompted for a password (i.e. `ssh-copy-id`). This will
 save you some typing.
 
+
 - There are a fews ways to develop, build and run CUDA programs in this workshop. Below are 3 options.
 
 1. Install `vscode` on the RHEL VM and use tunneling to connect from a web-based vscode session or
@@ -56,12 +57,47 @@ sudo yum install libpng-devel bc -y
 	- Move the `nsys_easy` script into a directory contained in $PATH
 	- `$HOME/.local/bin` is a good option
 
+#### CUDA Programming Basics
+
+A GPU has a fixed number of streaming multiprocessors (SMs) which contain
+numerous CUDA cores, caches and shared memory, all working together to execute instructions from many threads in parallel, significantly accelerating complex computational tasks. 
+
+![CUDA Architecture Diagram](images/arch.png)
+
+The diagram above illustrates the fundamental concepts in GPU architecture and parallel processing. 
+
+Part (a) shows a high-level view of a GPU with multiple **Streaming Multiprocessors** (SMs), each containing several **GPU Cores** and **On-chip Memory**. These SMs are the primary processing units of the GPU. 
+
+Part (b) demonstrates how a computational task is organized for execution on this hardware. A large problem is broken down into a **Grid of blocks**, where each block is an independent unit of work. The highlighted block, labeled (1,0), is then further divided into a grid of individual **threads**. This hierarchical structure—from the entire grid of blocks, down to a single block, and finally to the individual threads within it—is designed to exploit the parallel nature of the GPU. The diagram shows that an entire block of threads is scheduled to be executed on any of the available GPU cores, allowing for massive parallel execution and efficient use of the GPU's resources.
+
+The general workflow is:
+
+In the main program:
+
+1) Choose the number of threads per block (a.k.a. 4x4).
+
+2) Calculate 
+the grid dimensions Based on the dimensions of the data (4x2).
+
+3) Call the kernel function with the grid and block dimensions.
+
+In the kernel:
+
+1) Determine the global memory index for the given
+thread.
+
 #### Complete the following exercises:
+
+- Clone the galaxy guid repo.
+
+```bash
+git clone https://github.com/redhat-na-ssa/nvaie-guide.git
+```
 
 - Begin by running `make` to build all of the programs.
 
 ```bash
-cd src
+cd nvaie-guide/docs/software/cuda/src
 make
 ```
 
