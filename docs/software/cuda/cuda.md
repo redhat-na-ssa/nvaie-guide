@@ -18,50 +18,10 @@ You don't need to know CUDA to sell Openshift or train ML models, but it will gi
 a better appreciation for how GPUs work and the advantages they bring to AI engineers.
 Besides, its nerdy fun.
 
-#### Prerequisites
+#### Setup
 
-- A github account.
-
-- Order the [**Base Red Hat AI Inference Server (RHAIIS)**](https://catalog.demo.redhat.com/catalog?item=babylon-catalog-prod/rhdp.rhaiis-on-rhel.prod&utm_source=webapp&utm_medium=share-link) from the demo catalog.
-We will not be using the inference server but this VM comes configured with most of what we need
-to build and run CUDA programs.
-
-- Configure `ssh` so you can login w/o being prompted for a password (i.e. `ssh-copy-id`). This will
-save you some typing.
-
-- There are a few ways to develop, build and run CUDA programs in this workshop. Below are 3 options.
-
-1. Install `vscode` on the RHEL VM and use tunneling to connect from a web-based vscode session or
-directly from your laptop.
-
-```bash
-mkdir $HOME/.local/bin
-curl -L -o - 'https://code.visualstudio.com/sha/download?build=stable&os=cli-alpine-x64' | tar zxvf - -C $HOME/.local/bin
-```
-
-- Substitute <REPLACE_WITH_YOUR_NAME> below, run the vscode tunnel service and follow the prompts.
-
-```bash
-code tunnel --accept-server-license-terms --name=<REPLACE_WITH_YOUR_NAME>
-```
-
-2. Run vscode from your laptop and `ssh` into the VM.
-
-3. Hardcore Linux users can always use `ssh` and `vim`.
-
-- Next, perform the following to prepare the system to compile and run CUDA programs.
-  - `export PATH=$PATH:/usr/local/cuda/bin`
-  - Even better, modify your `~/.bashrc`
-
-- Install a few extra rpms.
-
-```bash
-sudo yum install libpng-devel bc -y
-```
-
-- Clone https://github.com/harrism/nsys_easy
-	- Move the `nsys_easy` script into a directory contained in $PATH
-	- `$HOME/.local/bin` is a good option
+- You will need a github account.
+- [Complete these prerequisites](https://gist.github.com/bkoz/310ec8137b0191ec0122adf918132dac)
 
 #### CUDA Programming Basics
 
@@ -89,14 +49,11 @@ In the main program:
     - Perform bounds checking before writing to memory. 
 
 4) Choose the number of threads per block (a.k.a. 4x4).
-
 5) Calculate 
 the grid dimensions Based on the dimensions of the data (4x2).
-
 6) Call the kernel function with the grid and block dimensions.
 7) Wait for the threads to syncronize
-8) Copy memory from CUDA to host
-9) Free the CUDA memory
+8) Free the CUDA memory
 
 In the kernel:
 
