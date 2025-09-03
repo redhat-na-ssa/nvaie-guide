@@ -1,6 +1,8 @@
 # CUDA Mini-Workshop
 
 An introductory workshop to learn about compiling, running and tuning simple CUDA programs on RHEL.
+The intent is not to make you a CUDA programmer but more of an introduction to the tools and 
+concepts used in the CUDA ecosystem.
 
 ## Overview
 
