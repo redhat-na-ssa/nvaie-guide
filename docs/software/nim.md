@@ -4,6 +4,180 @@ View the [supportability page](https://docs.nvidia.com/nim/large-language-models
 
 > [!IMPORTANT]
 > Configure User Workload Monitoring and Nvidia API Key in [Prerequisites](../prereqs.md).\
+
+### Deploy on RHEL
+
+#### Prerequisites
+
+- RHEL9.5 AWS instance type `g6e.xlarge` with a CUDA runtime stack.
+
+```bash
+export NGC_API_KEY=<your_ngc_api_key>
+
+podman login nvcr.io
+Username: $oauthtoken
+Password: <NGC_API_KEY>
+Login Succeeded!
+
+export LOCAL_NIM_CACHE=~/.cache/nim
+export HF_TOKEN=<your_huggingface_token>
+mkdir -p "$LOCAL_NIM_CACHE"
+sudo chcon -R system_u:object_r:container_home_t:s0 .cache/nim
+chmod 777 .cache/nim 
+```
+
+Launch the NIM container. These are large images and could take several
+minutes to download and become ready.
+
+```bash
+podman run -it --rm --security-opt=label=disable --device nvidia.com/gpu=all --name=nim-server -e NGC_API_KEY  -v "$LOCAL_NIM_CACHE:/opt/nim/.cache:z" -p 8000:8000 nvcr.io/nim/meta/llama-3.1-8b-instruct:latest
+```
+
+Example output
+```console
+===========================================
+== NVIDIA Inference Microservice LLM NIM ==
+===========================================
+
+NVIDIA Inference Microservice LLM NIM Version 1.13.1
+Model: meta-llama/llama-3.1-8b-instruct
+...
+...
+...
+INFO 11-06 17:50:16 [__init__.py:248] Automatically detected platform cuda.
+...
+...
+...
+INFO 2025-11-06 17:54:19.817 api_server.py:235] Available routes are:
+INFO 2025-11-06 17:54:19.817 api_server.py:243] Route: /openapi.json, Methods: HEAD, GET
+INFO 2025-11-06 17:54:19.817 api_server.py:243] Route: /docs, Methods: HEAD, GET
+INFO 2025-11-06 17:54:19.817 api_server.py:243] Route: /docs/oauth2-redirect, Methods: HEAD, GET
+INFO 2025-11-06 17:54:19.818 api_server.py:243] Route: /v1/chat/completions, Methods: POST
+INFO 2025-11-06 17:54:19.818 api_server.py:243] Route: /v1/completions, Methods: POST
+INFO 2025-11-06 17:54:19.818 api_server.py:243] Route: /experimental/ls/inference/chat_completion, Methods: POST
+INFO 2025-11-06 17:54:19.818 api_server.py:243] Route: /experimental/ls/inference/completion, Methods: POST
+INFO 2025-11-06 17:54:19.818 api_server.py:243] Route: /v1/health/ready, Methods: GET
+INFO 2025-11-06 17:54:19.818 api_server.py:243] Route: /v1/health/live, Methods: GET
+INFO 2025-11-06 17:54:19.818 api_server.py:243] Route: /v1/models, Methods: GET
+INFO 2025-11-06 17:54:19.818 api_server.py:243] Route: /v1/metadata, Methods: GET
+INFO 2025-11-06 17:54:19.818 api_server.py:243] Route: /v1/version, Methods: GET
+INFO 2025-11-06 17:54:19.818 api_server.py:243] Route: /v1/health/live, Methods: GET
+INFO 2025-11-06 17:54:19.818 api_server.py:243] Route: /v1/health/ready, Methods: GET
+INFO 2025-11-06 17:54:19.818 api_server.py:243] Route: /v1/metrics, Methods: GET
+INFO 2025-11-06 17:54:19.818 api_server.py:243] Route: /v1/license, Methods: GET
+INFO 2025-11-06 17:54:19.818 api_server.py:243] Route: /v1/metadata, Methods: GET
+INFO 2025-11-06 17:54:19.818 api_server.py:243] Route: /v1/manifest, Methods: GET
+INFO 2025-11-06 17:54:19.885 server.py:82] Started server process [107]
+INFO 2025-11-06 17:54:19.886 on.py:48] Waiting for application startup.
+INFO 2025-11-06 17:54:20.130 on.py:62] Application startup complete.
+INFO 2025-11-06 17:54:20.131 server.py:214] Uvicorn running on http://0.0.0.0:8000
+```
+
+Perform a basic health check.
+```
+curl http://0.0.0.0:8000/v1/models | jq
+```
+Example output
+```json
+{
+  "object": "list",
+  "data": [
+    {
+      "id": "meta-llama/llama-3.1-8b-instruct",
+      "object": "model",
+      "created": 1762451767,
+      "owned_by": "system",
+      "root": "meta-llama/llama-3.1-8b-instruct",
+      "parent": null,
+      "max_model_len": 131072,
+      "permission": [
+        {
+          "id": "modelperm-3d30ff4eb1ac447fa514ac085459d831",
+          "object": "model_permission",
+          "created": 1762451767,
+          "allow_create_engine": false,
+          "allow_sampling": true,
+          "allow_logprobs": true,
+          "allow_search_indices": false,
+          "allow_view": true,
+          "allow_fine_tuning": false,
+          "organization": "*",
+          "group": null,
+          "is_blocking": false
+        }
+      ]
+    }
+  ]
+}
+```
+
+Make an inference
+```bash
+curl -s -X 'POST' \
+  'http://0.0.0.0:8000/v1/chat/completions' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "model": "meta-llama/llama-3.1-8b-instruct",
+    "messages": [
+      {
+        "role":"user",
+        "content":"Hello! How are you?"
+      },
+      {
+        "role":"assistant",
+        "content":"Hi! I am quite well, how can I help you today?"
+      },
+      {
+        "role":"user",
+        "content":"Can you write me a song?"
+      }
+    ],
+    "top_p": 1,
+    "n": 1,
+    "max_tokens": 15,
+    "stream": false,
+    "frequency_penalty": 1.0,
+    "stop": ["hello"]
+  }' | jq
+  ```
+  
+  Example output
+  ```json
+{
+  "id": "chatcmpl-3f633fd56e4f447fa61c210bfbb1e999",
+  "object": "chat.completion",
+  "created": 1762451809,
+  "model": "meta-llama/llama-3.1-8b-instruct",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "reasoning_content": null,
+        "content": "I'd be happy to write a song for you. Before I start,",
+        "tool_calls": []
+      },
+      "logprobs": null,
+      "finish_reason": "length",
+      "stop_reason": null
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 72,
+    "total_tokens": 87,
+    "completion_tokens": 15,
+    "prompt_tokens_details": null
+  },
+  "prompt_logprobs": null,
+  "kv_transfer_params": null
+}
+  ```
+
+[NVIDIA Reference Doc](https://docs.nvidia.com/nim/visual-genai/latest/getting-started.html)
+
+
+### Deploy on Openshift
 > Configure [GPU Operator](../infra/gpu-operator.md).\
 > Configure [NIM Operator](../infra/nim-operator.md).
 
